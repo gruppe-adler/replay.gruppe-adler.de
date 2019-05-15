@@ -50,8 +50,14 @@ app.get('/:id', wrapAsync(async (req: Request, res: Response) => {
 
     if (isNaN(id)) return res.status(422).end();
 
+    const replay = replays.filter(r => r.id === id);
+
+    if (replay === null) return res.status(404).end();
+
     try {
-        res.sendFile(`${REPLAY_BASE_PATH}/${id}.json`);
+        const data = fs.readFileSync(`${REPLAY_BASE_PATH}/${id}.json`);
+
+        res.send(200).json({ ...replay, data }).end();
     } catch (err) {
         res.status(404).end();
     }
@@ -74,7 +80,7 @@ app.post('/', wrapAsync(async (req: Request, res: Response) => {
     const replay = { ...req.body, id } as Replay;
 
     // write complete replay
-    fs.writeFileSync(`${REPLAY_BASE_PATH}/${id}.json`, JSON.stringify(replay));
+    fs.writeFileSync(`${REPLAY_BASE_PATH}/${id}.json`, JSON.stringify(replay.data));
 
     // add replay to list and write to fs
     delete replay.data;
