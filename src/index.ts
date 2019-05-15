@@ -57,7 +57,7 @@ app.get('/:id', wrapAsync(async (req: Request, res: Response) => {
     try {
         const data = fs.readFileSync(`${REPLAY_BASE_PATH}/${id}.json`);
 
-        res.send(200).json({ ...replay, data }).end();
+        res.status(200).json({ ...replay, data });
     } catch (err) {
         res.status(404).end();
     }
