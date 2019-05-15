@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 80
 VOLUME ["/usr/src/app/replays"]
 
-ENTRYPOINT [ "npm", "prod" ]
+ENTRYPOINT [ "npm", "run", "prod" ]
