@@ -50,12 +50,15 @@ app.get('/:id', wrapAsync(async (req: Request, res: Response) => {
 
     if (isNaN(id)) return res.status(422).end();
 
-    const replay = replays.filter(r => r.id === id);
+    const replay = replays.find(r => r.id === id);
 
     if (replay === null) return res.status(404).end();
 
+    console.log(replay);
+
     try {
-        const data = fs.readFileSync(`${REPLAY_BASE_PATH}/${id}.json`);
+        const data = JSON.parse(fs.readFileSync(`${REPLAY_BASE_PATH}/${id}.json`));
+        console.log(data);
 
         res.status(200).json({ ...replay, data });
     } catch (err) {
