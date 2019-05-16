@@ -83,12 +83,12 @@ app.post('/', wrapAsync(async (req: Request, res: Response) => {
     const replay = { ...req.body, id } as Replay;
 
     // write complete replay
-    fs.writeFileSync(`${REPLAY_BASE_PATH}/${id}.json`, JSON.stringify(replay.data));
+    fs.writeFileSync(`${REPLAY_BASE_PATH}/${id}.json`, JSON.stringify(replay.data, undefined, 4));
 
     // add replay to list and write to fs
     delete replay.data;
     replays.push(replay);
-    fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify(replays));
+    fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify(replays, undefined, 4));
 
     res.status(201).end();
 }));
@@ -107,7 +107,7 @@ app.delete('/:id', wrapAsync(async (req: Request, res: Response) => {
     if (replay === null) return res.status(404).end(); // not found
 
     replays = replays.filter(r => r.id !== id);
-    fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify(replays));
+    fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify(replays, undefined, 4));
 
     fs.unlinkSync(`${REPLAY_BASE_PATH}/${id}.json`);
 
