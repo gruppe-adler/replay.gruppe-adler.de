@@ -17,7 +17,7 @@ if (!fs.existsSync(`${REPLAY_BASE_PATH}/replays.json`)) {
     fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify([]));
 }
 
-const replays: Replay[] = JSON.parse(fs.readFileSync(`${REPLAY_BASE_PATH}/replays.json`, 'utf8'));
+let replays: Replay[] = JSON.parse(fs.readFileSync(`${REPLAY_BASE_PATH}/replays.json`, 'utf8'));
 
 const {
     PORT = 80,
@@ -92,6 +92,27 @@ app.post('/', wrapAsync(async (req: Request, res: Response) => {
 
     res.status(201).end();
 }));
+
+app.delete('/:id', wrapAsync(async (req: Request, res: Response) => {
+
+    const auth: string = req.header('Authorization') || '';
+    if (auth === '') return res.status(401).end(); // unauthorized
+    const token = auth.replace(/^Bearer\s+/i, '');
+    if (token !== AUTH_TOKEN) return res.status(403).end(); // forbidden
+
+    
+    const id: number = Number(req.params.id);
+    if (isNaN(id)) return res.status(422).end(); // unprocessable entity
+    const replay = replays.find(r => r.id === id);
+    if (replay === null) return res.status(404).end(); // not found
+
+    replays = replays.filter(r => r.id !== id);
+    fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify(replays));
+
+    fs.unlinkSync(`${REPLAY_BASE_PATH}/${id}.json`);
+
+    res.status(200).end();
+}))
 
 app.use(globalErrorHandler);
 
