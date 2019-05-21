@@ -27,7 +27,7 @@ const {
 const app = express();
 
 // body parser
-const bp = bodyParser.json();
+const bp = bodyParser.json({ limit: '1gb'});
 app.use(bp);
 
 
