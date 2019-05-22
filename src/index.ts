@@ -100,7 +100,7 @@ app.delete('/:id', wrapAsync(async (req: Request, res: Response) => {
     const id: number = Number(req.params.id);
     if (isNaN(id)) return res.status(422).end(); // unprocessable entity
     const replay = replays.find(r => r.id === id);
-    if (replay === null) return res.status(404).end(); // not found
+    if (!replay) return res.status(404).end(); // not found
 
     replays = replays.filter(r => r.id !== id);
     fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify(replays, undefined, 4));
