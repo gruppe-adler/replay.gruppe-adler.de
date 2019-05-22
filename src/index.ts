@@ -54,12 +54,8 @@ app.get('/:id', wrapAsync(async (req: Request, res: Response) => {
 
     if (replay === null) return res.status(404).end();
 
-    console.log(replay);
-
     try {
         const data = JSON.parse(fs.readFileSync(`${REPLAY_BASE_PATH}/${id}.json`, 'utf8'));
-        console.log(data);
-
         res.status(200).json({ ...replay, data });
     } catch (err) {
         res.status(404).end();
