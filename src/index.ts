@@ -5,7 +5,6 @@ import path from 'path';
 import fs from 'fs';
 
 import { wrapAsync, globalErrorHandler } from './utils';
-import Replay from './models';
 
 const REPLAY_BASE_PATH = path.join(__dirname, '../replays');
 
@@ -17,7 +16,7 @@ if (!fs.existsSync(`${REPLAY_BASE_PATH}/replays.json`)) {
     fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify([]));
 }
 
-let replays: Replay[] = JSON.parse(fs.readFileSync(`${REPLAY_BASE_PATH}/replays.json`, 'utf8'));
+let replays: Array<any> = JSON.parse(fs.readFileSync(`${REPLAY_BASE_PATH}/replays.json`, 'utf8'));
 
 const {
     PORT = 80,
@@ -76,7 +75,7 @@ app.post('/', wrapAsync(async (req: Request, res: Response) => {
 
     const lastID: number = replays.length > 0 ? replays[replays.length - 1].id : -1;
     const id: number = lastID + 1;
-    const replay = { ...req.body, id } as Replay;
+    const replay = { ...req.body, id } as any;
 
     // write complete replay
     fs.writeFileSync(`${REPLAY_BASE_PATH}/${id}.json`, JSON.stringify(replay.data, undefined, 4));
