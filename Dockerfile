@@ -21,8 +21,8 @@ FROM node:10-alpine
 WORKDIR /usr/src/app/
 
 # Copy everyting from builder
-COPY --from=builder /usr/tmp/build .
-COPY --from=builder /usr/tmp/package*.json .
+COPY --from=builder /tmp/build .
+COPY --from=builder /tmp/package*.json .
 
 # Install depencies
 RUN npm ci --only=production
