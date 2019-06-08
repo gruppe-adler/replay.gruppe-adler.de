@@ -21,7 +21,7 @@ FROM node:10-alpine
 WORKDIR /usr/src/app/
 
 # Copy everyting from builder
-COPY --from=builder /tmp/build .
+COPY --from=builder /tmp/build ./build/
 COPY --from=builder /tmp/package*.json ./
 
 # Install depencies
