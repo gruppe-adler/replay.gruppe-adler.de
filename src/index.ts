@@ -1,10 +1,16 @@
 import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
+import morgan from 'morgan';
 import path from 'path';
 import fs from 'fs';
+import { Sequelize } from 'sequelize-typescript';
 
-import { wrapAsync, globalErrorHandler } from './utils';
+import { wrapAsync, globalErrorHandler, authGuard } from './utils';
+import { Replay } from './models/Replay';
+import { Frame } from './models/Frame';
+import { Record } from './models/Record';
+import { Config } from './models/Config';
 
 const REPLAY_BASE_PATH = path.join(__dirname, '../replays');
 
@@ -12,11 +18,14 @@ if (!fs.existsSync(REPLAY_BASE_PATH)) {
     fs.mkdirSync(REPLAY_BASE_PATH);
 }
 
-if (!fs.existsSync(`${REPLAY_BASE_PATH}/replays.json`)) {
-    fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify([]));
-}
+const sequelize =  new Sequelize({
+    dialect: 'sqlite',
+    logging: false,
+    storage: `${REPLAY_BASE_PATH}/replays.sqlite`
+});
 
-let replays: Array<any> = JSON.parse(fs.readFileSync(`${REPLAY_BASE_PATH}/replays.json`, 'utf8'));
+sequelize.addModels([ Replay, Frame, Record, Config ]);
+sequelize.sync({ force: true });
 
 const {
     PORT = 80,
@@ -29,6 +38,8 @@ const app = express();
 const bp = bodyParser.json({ limit: '1gb'});
 app.use(bp);
 
+// logger
+app.use(morgan('tiny'));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,7 +51,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // GET ALL REPLAYS
 app.get('/', wrapAsync(async (req: Request, res: Response) => {
-    res.status(200).json(replays);
+    res.status(200).json(await Replay.findAll());
 }));
 
 // GET SINGLE REPLAY
@@ -49,62 +60,61 @@ app.get('/:id', wrapAsync(async (req: Request, res: Response) => {
 
     if (isNaN(id)) return res.status(422).end();
 
-    const replay = replays.find(r => r.id === id);
+    const replay = await Frame.findByPk(id);
 
     if (replay === null) return res.status(404).end();
 
-    try {
-        const data = JSON.parse(fs.readFileSync(`${REPLAY_BASE_PATH}/${id}.json`, 'utf8'));
-        res.status(200).json({ ...replay, data });
-    } catch (err) {
-        res.status(404).end();
-    }
+    res.status(200).json(replay);
+}));
+
+// GET REPLAY DATA
+app.get('/:id/data/:offset', wrapAsync(async (req: Request, res: Response) => {
+    const id: number = Number(req.params.id);
+    const offset: number = Number(req.params.offset);
+
+    if (isNaN(id) || isNaN(offset)) return res.status(422).end();
+
+    const data = await Frame.findAll({ where: { replayId: id }, limit: 10, offset: offset*10 });
+
+    res.status(200).json(data);
 }));
 
 // POST REPLAY
-app.post('/', wrapAsync(async (req: Request, res: Response) => {
-    const auth: string = req.header('Authorization') || '';
+app.post('/', [authGuard], wrapAsync(async (req: Request, res: Response) => {
 
-    // unauthorized
-    if (auth === '') return res.status(401).end();
+    const body = req.body as { 
+        missionName: string,
+        date: string,
+        duration: number,
+        worldName: string,
+        config: object,
+        data: Array<{ time: string, data: object }>
+    };
+   
+    const replay: Replay = await Replay.create({ ...body, frameCount: body.data.length }, { include: [ { model: Config } ] });
 
-    const token = auth.replace(/^Bearer\s+/i, '');
+    const records = [];
 
-    // forbidden
-    if (token !== AUTH_TOKEN) return res.status(403).end();
+    for (const item of body.data) {
+        const frame = await Frame.create({ ...item, replayId: replay.id });
 
-    const lastID: number = replays.length > 0 ? replays[replays.length - 1].id : -1;
-    const id: number = lastID + 1;
-    const replay = { ...req.body, id } as any;
-
-    // write complete replay
-    fs.writeFileSync(`${REPLAY_BASE_PATH}/${id}.json`, JSON.stringify(replay.data, undefined, 4));
-
-    // add replay to list and write to fs
-    delete replay.data;
-    replays.push(replay);
-    fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify(replays, undefined, 4));
+        for (const rec of item.data as any[]) {
+            records.push({ ...rec, frameId: frame.id });
+        }
+    }
 
     res.status(201).end();
+
+    await Record.bulkCreate(records);
+
 }));
 
-app.delete('/:id', wrapAsync(async (req: Request, res: Response) => {
-
-    const auth: string = req.header('Authorization') || '';
-    if (auth === '') return res.status(401).end(); // unauthorized
-    const token = auth.replace(/^Bearer\s+/i, '');
-    if (token !== AUTH_TOKEN) return res.status(403).end(); // forbidden
-
+app.delete('/:id', [authGuard], wrapAsync(async (req: Request, res: Response) => {
     
     const id: number = Number(req.params.id);
     if (isNaN(id)) return res.status(422).end(); // unprocessable entity
-    const replay = replays.find(r => r.id === id);
-    if (!replay) return res.status(404).end(); // not found
-
-    replays = replays.filter(r => r.id !== id);
-    fs.writeFileSync(`${REPLAY_BASE_PATH}/replays.json`, JSON.stringify(replays, undefined, 4));
-
-    fs.unlinkSync(`${REPLAY_BASE_PATH}/${id}.json`);
+    
+    await Replay.destroy({ where: { id }});
 
     res.status(200).end();
 }))
