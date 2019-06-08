@@ -1,7 +1,7 @@
-FROM node:10-alpine
+FROM node:10-alpine AS builder
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /tmp/
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -13,6 +13,19 @@ RUN npm ci
 
 # Bundle app source
 COPY . .
+
+# Compile 
+RUN [ "npm", "run", "tsc" ]
+
+FROM node:10-alpine
+WORKDIR /usr/src/app/
+
+# Copy everyting from builder
+COPY --from=builder /usr/tmp/build .
+COPY --from=builder /usr/tmp/package*.json .
+
+# Install depencies
+RUN npm ci --only=production
 
 EXPOSE 80
 VOLUME ["/usr/src/app/replays"]
