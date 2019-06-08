@@ -22,7 +22,7 @@ WORKDIR /usr/src/app/
 
 # Copy everyting from builder
 COPY --from=builder /tmp/build .
-COPY --from=builder /tmp/package*.json .
+COPY --from=builder /tmp/package*.json ./
 
 # Install depencies
 RUN npm ci --only=production
