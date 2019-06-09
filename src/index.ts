@@ -39,7 +39,7 @@ const bp = bodyParser.json({ limit: '1gb'});
 app.use(bp);
 
 // logger
-app.use(morgan('tiny'));
+app.use(morgan('[:date[clf]] :remote-addr - :remote-user | :method :url :req[content-length] | :status :response-time ms'));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
