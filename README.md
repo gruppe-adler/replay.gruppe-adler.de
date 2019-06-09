@@ -22,7 +22,18 @@ Some endpoints require Authorization. Just set the `Authorization` HTTP header w
         "duration":34,
         "missionName":"replayTest",
         "worldName":"Stratis",
-        "id":0
+        "id":0,
+        "frameCount":30,
+        "config": {
+            "id":1,
+            "precision":1,
+            "sendingChunkSize":10,
+            "stepsPerTick":1,
+            "trackShots":true,
+            "trackedAI":true,
+            "trackedSides":["west","east","civilian"],
+            "trackedVehicles":true
+        }
     },
     // [...]
 ]
@@ -39,53 +50,14 @@ Some endpoints require Authorization. Just set the `Authorization` HTTP header w
     "missionName": "replayTest",
     "worldName": "Stratis",
     "id": 0,
-    "data": {
-        "config": {
-            "precision": 1,
-            "sendingChunkSize": 10,
-            "stepsPerTick": 1,
-            "trackShots": true,
-            "trackedAI": true,
-            "trackedSides": ["west", "east", "civilian"],
-            "trackedVehicles": true
-        },
-        "replay": [
-            {
-                "data": [
-                    {
-                        "color": "rgba(0,76,153,1)",
-                        "direction": 111,
-                        "group": " (Alpha 1-1)",
-                        "icon": "iconMan",
-                        "name": "Willard",
-                        "position": [1900.7523193359375, 5695.95556640625]
-                    }, {
-                        "color": "rgba(127,0,0,1)",
-                        "direction": 10,
-                        "group": " (Alpha 1-1)",
-                        "icon": "unknown",
-                        "name": "Hussein Bahadur",
-                        "position": [2603.489990234375, 5460.224609375]
-                    }, {
-                        "color": "rgba(0,76,153,1)",
-                        "direction": 0,
-                        "group": " (Alpha 1-2)",
-                        "icon": "iconMan",
-                        "name": "Ryan Price",
-                        "position": [1615.6707763671875, 5179.10498046875]
-                    }, {
-                        "color": "rgba(0,76,153,1)",
-                        "direction": 312,
-                        "group": " (Alpha 1-3)",
-                        "icon": "unknown",
-                        "name": "Jack Davis",
-                        "position": [3481.974853515625, 5346.24169921875]
-                    }
-                ],
-                "time": "12:00:06"
-            },
-            // [...]
-        ]
+    "config": {
+        "precision": 1,
+        "sendingChunkSize": 10,
+        "stepsPerTick": 1,
+        "trackShots": true,
+        "trackedAI": true,
+        "trackedSides": ["west", "east", "civilian"],
+        "trackedVehicles": true
     }
 }
 ```
