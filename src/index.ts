@@ -25,7 +25,7 @@ const sequelize =  new Sequelize({
 });
 
 sequelize.addModels([ Replay, Frame, Record, Config ]);
-sequelize.sync({ force: true });
+sequelize.sync();
 
 const {
     PORT = 80,
