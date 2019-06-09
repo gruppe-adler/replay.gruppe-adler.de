@@ -60,7 +60,7 @@ app.get('/:id', wrapAsync(async (req: Request, res: Response) => {
 
     if (isNaN(id)) return res.status(422).end();
 
-    const replay = await Frame.findByPk(id);
+    const replay = await Replay.findByPk(id);
 
     if (replay === null) return res.status(404).end();
 
