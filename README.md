@@ -64,7 +64,7 @@ Some endpoints require Authorization. Just set the `Authorization` HTTP header w
 ```
 
 ### GET `/:id/data/:offset`
-`Description`: Returns data from replay with given id with given offset. The offset is taken times 10 and there are always ten frames in one response so `/0/data/2` will return frames 20-29 from replay 0.  
+`Description`: Returns data from replay with given id with given offset. The offset is taken times 10 and there are always a maximum of ten frames in one response so `/0/data/2` will return frames 20-29 from replay 0.  
 `Requires Authorization?`: No  
 `Example Response`: 
 ```jsonc
