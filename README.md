@@ -50,6 +50,7 @@ Some endpoints require Authorization. Just set the `Authorization` HTTP header w
     "missionName": "replayTest",
     "worldName": "Stratis",
     "id": 0,
+    "frameCount":30,
     "config": {
         "precision": 1,
         "sendingChunkSize": 10,
@@ -60,6 +61,56 @@ Some endpoints require Authorization. Just set the `Authorization` HTTP header w
         "trackedVehicles": true
     }
 }
+```
+
+### GET `/:id/data/:offset`
+`Description`: Returns data from replay with given id with given offset. The offset is taken times 10 and there are always ten frames in one response so `/0/data/2` will return frames 20-29 from replay 0.  
+`Requires Authorization?`: No  
+`Example Response`: 
+```jsonc
+[
+    {
+        "id": 51,
+        "time": "12:00:28",
+        "data": [
+            {
+                "id": 821,
+                "color": "rgba(0,76,153,1)",
+                "direction": 132,
+                "group": " (Alpha 1-1)",
+                "icon": "iconMan",
+                "name": "Willard",
+                "position": [
+                    1946.40283203125,
+                    5663.35107421875
+                ],
+                "target": null
+            },
+            // [...]
+        ]
+    },
+    {
+        "id": 52,
+        "time": "12:00:29",
+        "data": [
+            {
+                "id": 839,
+                "color": "rgba(0,76,153,1)",
+                "direction": 124,
+                "group": " (Alpha 1-1)",
+                "icon": "iconMan",
+                "name": "Willard",
+                "position": [
+                    1949.318359375,
+                    5663.4638671875
+                ],
+                "target": null
+            },
+            // [...]
+        ]
+    },
+    // [...]
+]
 ```
 
 ### DELETE `/:id`
