@@ -7,6 +7,9 @@ A docker image is available on [Docker Hub](https://hub.docker.com/r/gruppeadler
 - The container obviously should be reachable via Port 80/443.  
 - The authorization token can be configured via the environment variable `AUTH_TOKEN`. The default value is `MEH`.
 
+## Development
+To setup a development enviornment jsut clone this repository, install all dependencies with `npm install` and then start the development server with `npm run serve`.
+
 ## Authorization
 Some endpoints require Authorization. Just set the `Authorization` HTTP header with value `Bearer <AUTH_TOKEN>`. For an explanation on how to configure the AUTH_TOKEN see [Setup & Configuration](#Setup-&-Configuration).
 
