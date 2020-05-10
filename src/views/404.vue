@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import ErrorVue from '@/components/Error.vue'
+import { Component, Vue } from 'vue-property-decorator';
+import ErrorVue from '@/components/Error.vue';
 
 @Component({
     components: {
