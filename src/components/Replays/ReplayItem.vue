@@ -7,11 +7,15 @@
                 <i class="material-icons">calendar_today</i>
                 <span>{{date}}</span>
             </div>
+            <div class="grad-replay-item--icon-text grad-replay-item__map-field">
+                <i class="material-icons">map</i>
+                <span>{{mapDisplayName}}</span>
+            </div>
             <div class="grad-replay-item--icon-text">
                 <i class="material-icons">schedule</i>
                 <span>{{duration}}</span>
             </div>
-            <div class="grad-replay-item__players grad-replay-item--icon-text">
+            <div class="grad-replay-item--icon-text">
                 <i class="material-icons">people</i>
                 <span>n/a</span>
             </div>
@@ -104,14 +108,22 @@ export default class ReplayItemVue extends Vue {
     &__title {
         grid-area: title;
         margin: 0px;
+        font-weight: normal;
     }
 
     &__fields {
         grid-area: fields;
         display: grid;
         grid-column-gap: 1.5rem;
+        grid-row-gap: .5rem;
         grid-auto-flow: column;
+        justify-items: flex-start;
     }
+
+    &__map-field {
+        display: none;
+    }
+
     &__map-img {
         grid-area: map-img;
         height: 3.5rem;
@@ -160,6 +172,38 @@ export default class ReplayItemVue extends Vue {
             pointer-events: none;
             background-color: #C4C4C4;
             color: #828282;
+        }
+    }
+
+    @media(max-width: 1300px) {
+        grid-template:
+            "title map-img map-name btn" auto
+            "fields map-img map-name btn" auto / 40% auto 1fr 100px;
+    }
+
+    @media(max-width: 1200px) {
+        grid-template:
+            "title map-img map-name btn" auto
+            "fields map-img map-name btn" auto / 50% auto 1fr 100px;
+    }
+
+    @media(max-width: 800px) {
+        grid-template:
+            "title btn" auto
+            "fields btn" auto / 1fr 100px;
+
+        &__fields {
+            grid-template-columns: auto auto;
+            grid-auto-flow: row;
+        }
+
+        &__map-field {
+            display: flex;
+        }
+
+        &__map-name,
+        &__map-img {
+            display: none;
         }
     }
 
