@@ -1,6 +1,5 @@
 <template>
     <div class="grad-replay-item">
-        <!-- {{ model }} -->
         <h2 class="grad-replay-item__title">{{model.missionName}}</h2>
         <div class="grad-replay-item__fields">
             <div class="grad-replay-item--icon-text">
@@ -21,9 +20,7 @@
             </div>
         </div>
         <img v-if="mapImg.length > 0" class="grad-replay-item__map-img" :src="mapImg" />
-        <div v-else class="grad-replay-item__map-img">
-            ?
-        </div>
+        <img v-else class="grad-replay-item__map-img" src="@/assets/unkown_map.svg" />
         <span class="grad-replay-item__map-name">{{mapDisplayName}}</span>
         <div class="grad-replay-item__btn" :class="map !== null ? '' : 'grad-replay-item__btn--error'">
             <i class="material-icons" v-if="map !== null">play_arrow</i>
@@ -129,16 +126,6 @@ export default class ReplayItemVue extends Vue {
         height: 3.5rem;
         width: 3.5rem;
         border-radius: .25rem;
-
-        & {
-            background-color: #C4C4C4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #828282;
-            font-weight: bold;
-            font-size: 1rem;
-        }
     }
     &__map-name {
         grid-area: map-name;
