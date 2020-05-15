@@ -33,7 +33,7 @@ import ErrorVue from '@/components/Error.vue';
 import LoaderVue from '@/components/Loader.vue';
 import { Replay } from '@/models/Replay';
 import { fetchReplays } from '@/ApiUtils';
-import { MapMetaData } from '@gruppe-adler/maps-frontend-utils';
+import { MapMetaData, fetchMaps } from '@gruppe-adler/maps-frontend-utils';
 import ReplayItemVue from '@/components/Replays/ReplayItem.vue';
 import ReplaysFilterVue from '@/components/Replays/Filter.vue';
 
@@ -60,7 +60,7 @@ export default class ReplaysVue extends Vue {
         this.loading = true;
         try {
             this.replays = (await fetchReplays()).sort((a, b) => b.date.getTime() - a.date.getTime());
-            // this.maps = await fetchMaps();
+            this.maps = await fetchMaps();
         } catch (err) {
             this.errorText = 'An error occured while loading available replays';
             console.error(err);
