@@ -34,5 +34,7 @@ export interface Replay {
     date: Date;
     duration: number;
     worldName: string;
+    frameCount: number;
+    config: ReplayConfig;
     data?: ReplayData;
 }

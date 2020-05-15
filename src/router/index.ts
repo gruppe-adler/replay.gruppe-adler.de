@@ -11,6 +11,11 @@ const routes: Array<RouteConfig> = [
     {
         path: '/',
         component: () => import(/* webpackChunkName: "replays" */ '@/views/Replays.vue')
+    },
+    {
+        path: '/:rid',
+        component: () => import(/* webpackChunkName: "replay" */ '@/views/Replay.vue'),
+        props: true
     }
 ];
 

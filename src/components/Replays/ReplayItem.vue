@@ -22,8 +22,12 @@
         <img v-if="mapImg.length > 0" class="grad-replay-item__map-img" :src="mapImg" />
         <img v-else class="grad-replay-item__map-img" src="@/assets/unkown_map.svg" />
         <span class="grad-replay-item__map-name">{{mapDisplayName}}</span>
-        <div class="grad-replay-item__btn" :class="map !== null ? '' : 'grad-replay-item__btn--error'">
-            <i class="material-icons" v-if="map !== null">play_arrow</i>
+        <div
+            class="grad-replay-item__btn"
+            :class="valid ? '' : 'grad-replay-item__btn--error'"
+            @click="select"
+        >
+            <i class="material-icons" v-if="valid">play_arrow</i>
             <i class="material-icons" v-else>error</i>
         </div>
     </div>
@@ -67,6 +71,16 @@ export default class ReplayItemVue extends Vue {
 
     private get date (): string {
         return (new Intl.DateTimeFormat(undefined, { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric' })).format(this.model.date);
+    }
+
+    private get valid (): boolean {
+        return this.map !== null;
+    }
+
+    private select () {
+        if (!this.valid) return;
+
+        this.$router.push(`/${this.model.id}`);
     }
 }
 </script>
@@ -148,6 +162,7 @@ export default class ReplayItemVue extends Vue {
         cursor: pointer;
 
         > i {
+            user-select: none;
             transition: font-size .05s ease-in-out;
         }
 

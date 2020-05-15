@@ -20,7 +20,7 @@ export async function fetchReplays (): Promise<Replay[]> {
     return replays.map(r => ({ ...r, date: new Date(r.date) }));
 }
 
-export async function fetchReplay (id: number): Promise<Replay|null> {
+export async function fetchReplay (id: number): Promise<Replay> {
     const replay = await fetchJSON(`${API_BASE_URL}/${id}`) as ReplayResponse;
 
     return {
