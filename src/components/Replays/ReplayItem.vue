@@ -37,6 +37,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Replay } from '@/models/Replay';
 import { MapMetaData, mapPreviewImgUrl } from '@gruppe-adler/maps-frontend-utils';
+import { formatDate, formatSeconds } from '@/utils/dateTime';
 
 @Component
 export default class ReplayItemVue extends Vue {
@@ -57,20 +58,11 @@ export default class ReplayItemVue extends Vue {
     }
 
     private get duration (): string {
-        const sec = this.model.duration;
-
-        const hours = Math.floor(sec / 3600);
-        const min = Math.floor((sec % 3600) / 60);
-
-        if (hours === 0) {
-            return `${min} min`;
-        }
-
-        return `${hours}h ${min}min`;
+        return formatSeconds(this.model.duration);
     }
 
     private get date (): string {
-        return (new Intl.DateTimeFormat(undefined, { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric' })).format(this.model.date);
+        return formatDate(this.model.date);
     }
 
     private get valid (): boolean {

@@ -7,8 +7,19 @@
     <Loader
         v-else-if="loading"
     />
-    <div v-else class="grad-replay">
-        {{ replay }}
+    <div v-else-if="replay !== null" class="grad-replay">
+        <ReplayMap
+            :satShown="satShown"
+            :gridShown="gridShown"
+            :worldName="replay.worldName"
+        />
+        <ReplayTitle
+            :replay="replay"
+        />
+        <ReplayToolbar
+            :satShown.sync="satShown"
+            :gridShown.sync="gridShown"
+        />
     </div>
 </template>
 
@@ -19,11 +30,17 @@ import LoaderVue from '@/components/Loader.vue';
 import { Replay } from '@/models/Replay';
 import { fetchReplay } from '@/ApiUtils';
 import { GradMap } from '@gruppe-adler/maps-frontend-utils';
+import ReplayMapVue from '@/components/Replay/Map.vue';
+import ReplayTitleVue from '@/components/Replay/Title.vue';
+import ReplayToolbarVue from '@/components/Replay/Toolbar.vue';
 
 @Component({
     components: {
         Error: ErrorVue,
-        Loader: LoaderVue
+        Loader: LoaderVue,
+        ReplayMap: ReplayMapVue,
+        ReplayToolbar: ReplayToolbarVue,
+        ReplayTitle: ReplayTitleVue
     }
 })
 export default class ReplaysVue extends Vue {
@@ -33,6 +50,8 @@ export default class ReplaysVue extends Vue {
     private errorBtn = true;
     private replay: Replay|null = null;
     private map: GradMap|null = null;
+    private satShown = true;
+    private gridShown = false;
 
     private created () {
         this.fetchReplay();
@@ -63,23 +82,6 @@ export default class ReplaysVue extends Vue {
             this.errorBtn = true;
         }
 
-        // load map
-        if (this.replay !== null) {
-            try {
-                this.map = await GradMap.new(this.replay.worldName, this.$el as HTMLDivElement);
-            } catch (err) {
-                if (err.response && err.response instanceof Response) {
-                    if (err.response.status === 404) {
-                        this.errorText = `Couldn't find map with worldname "${this.replay.worldName}"`;
-                        this.errorBtn = false;
-                        return;
-                    }
-                }
-                this.errorText = 'An error occured while loading the map.';
-                this.errorBtn = false;
-            }
-        }
-
         this.loading = false;
     }
 }
@@ -90,5 +92,15 @@ export default class ReplaysVue extends Vue {
     display: grid;
     grid-template-rows: auto 1fr;
     height: 100vh;
+}
+</style>
+
+<style lang="scss">
+@import '~@/assets/colors.scss';
+
+.grad-replay__group {
+    background-color: $color-background;
+    box-shadow: 0px 0.25rem .5rem rgba(0, 0, 0, 0.125);
+    border-radius: .25rem;
 }
 </style>
