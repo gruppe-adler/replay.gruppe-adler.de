@@ -2,9 +2,9 @@
     <div :class="['grad-slider', active ? 'grad-slider--active' : '']" @mousedown="onMouseDown">
         <div class="grad-slider__track">
             <div
-                v-for="b in bufferedAreas"
+                v-for="(b, i) in bufferedAreas"
                 class="grad-slider__buffered"
-                :key="b.start"
+                :key="i"
                 :style="`left: ${percent(b.start)}%; right: ${100 - percent(b.end)}%;`"
             ></div>
             <div :key="percent(value)" class="grad-slider__progress" :style="`width: ${percent(value)}%`"></div>

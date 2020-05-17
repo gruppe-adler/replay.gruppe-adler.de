@@ -20,9 +20,10 @@ export default class DataWorker extends EventTarget {
     }
 
     public async getFrame (id: number): Promise<ReplayFrame|null> {
+        const sectionId = Math.floor(id / 10);
+
         if (!this.cache.has(id)) {
             this.dispatchEvent(new Event('loading'));
-            const sectionId = Math.floor(id / 10);
 
             try {
                 await this.fetchSection(sectionId);
@@ -34,6 +35,8 @@ export default class DataWorker extends EventTarget {
             }
 
             this.dispatchEvent(new Event('loaded'));
+        } else {
+            this.prefetchNextSection(sectionId);
         }
 
         return this.cache.get(id) || null;
@@ -66,21 +69,25 @@ export default class DataWorker extends EventTarget {
             this.cachedSections.push(sectionId);
             this.dispatchEvent(new Event('buffered'));
         }).then(async () => {
-            // prefetch next section
-            let nextSessionId = sectionId + 1;
-            while (this.cachedSections.includes(nextSessionId)) nextSessionId++;
-
-            this.fetchSection(nextSessionId).catch((err) => {
-                if (err.name === 'AbortError') {
-                    return;
-                }
-                console.error(err);
-            });
+            this.prefetchNextSection(sectionId);
         });
 
         this.currentFetch = { sectionId, promise, abortController };
 
         return promise;
+    }
+
+    private prefetchNextSection (section: number) {
+        // prefetch next section
+        let nextSession = section + 1;
+        while (this.cachedSections.includes(nextSession)) nextSession++;
+
+        this.fetchSection(nextSession).catch((err) => {
+            if (err.name === 'AbortError') {
+                return;
+            }
+            console.error(err);
+        });
     }
 
     public getBufferedAreas (): Array<{ start: number; end: number }> {
