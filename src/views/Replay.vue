@@ -12,6 +12,7 @@
             :satShown="satShown"
             :gridShown="gridShown"
             :worldName="replay.worldName"
+            :frame="frame"
         />
         <ReplayTitle
             :replay="replay"
