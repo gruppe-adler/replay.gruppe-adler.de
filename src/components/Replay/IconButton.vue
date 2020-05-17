@@ -50,6 +50,7 @@ export default class IconButtonVue extends Vue {
     cursor: pointer;
     transition: all 0.1s ease-in-out;
     color: $color-inactive;
+    padding: 0.75rem;
 
     &:not(:last-child)::before {
         content: '';
@@ -61,18 +62,17 @@ export default class IconButtonVue extends Vue {
         background-color: $color-divider;
     }
 
+    &:hover {
+        background-color: rgba($color-active, 0.05);
+
+        > .grad-icon-button__tooltip {
+            display: initial;
+        }
+    }
+
     > i {
         color: inherit;
         user-select: none;
-        padding: 0.75rem;
-
-        &:hover {
-            background-color: rgba($color-active, 0.05);
-
-            ~ .grad-icon-button__tooltip {
-                display: initial;
-            }
-        }
     }
 
     &__tooltip {
