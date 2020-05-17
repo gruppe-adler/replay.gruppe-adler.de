@@ -17,7 +17,6 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import ErrorVue from '@/components/Error.vue';
 import LoaderVue from '@/components/Loader.vue';
 import { GradMap } from '@gruppe-adler/maps-frontend-utils';
-import 'leaflet/dist/leaflet.css';
 
 @Component({
     components: {
