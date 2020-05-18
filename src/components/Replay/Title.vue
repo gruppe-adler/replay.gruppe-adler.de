@@ -1,7 +1,10 @@
 <template>
 <div class="grad-replay__title grad-replay__group">
     <IconButton @click="$router.push('/')" icon="arrow_back" />
-    <span>{{ title }}</span>
+    <div>
+        <span>{{ replay.missionName }}</span>
+        <span>{{ date }}</span>
+    </div>
 </div>
 </template>
 
@@ -19,8 +22,8 @@ import { formatDate } from '../../utils/dateTime';
 export default class ReplayTitleVue extends Vue {
     @Prop({ required: true, type: Object }) private replay!: Replay;
 
-    private get title (): string {
-        return `${this.replay.missionName} (${formatDate(this.replay.date)})`;
+    private get date (): string {
+        return `(${formatDate(this.replay.date)})`;
     }
 }
 </script>
@@ -30,16 +33,23 @@ export default class ReplayTitleVue extends Vue {
 
 .grad-replay__title {
     display: flex;
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
     align-items: center;
+    flex-shrink: 1;
+    justify-self: flex-start;
+    max-width: 100%;
+    overflow: hidden;
 
-    > span {
-        font-size: 1rem;
-        padding: 0 1.5rem 0 .5rem;
-        font-weight: bold;
-        color: $color-active;
+    > div:last-child {
+        padding: 0 .5rem;
+        display: flex;
+        flex-wrap: wrap;
+
+        > span {
+            font-size: 1rem;
+            font-weight: bold;
+            color: $color-active;
+            white-space: nowrap;
+        }
     }
 }
 </style>

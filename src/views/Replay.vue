@@ -14,13 +14,15 @@
             :worldName="replay.worldName"
             :frame="frame"
         />
-        <ReplayTitle
-            :replay="replay"
-        />
-        <ReplayToolbar
-            :satShown.sync="satShown"
-            :gridShown.sync="gridShown"
-        />
+        <div class="grad-replay__top">
+            <ReplayTitle
+                :replay="replay"
+            />
+            <ReplayToolbar
+                :satShown.sync="satShown"
+                :gridShown.sync="gridShown"
+            />
+        </div>
         <ReplayControls
             v-model="frame"
             :replay="replay"
@@ -100,6 +102,21 @@ export default class ReplaysVue extends Vue {
     display: grid;
     grid-template-rows: auto 1fr;
     height: 100vh;
+
+    &__top {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        right: 1rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-column-gap: 1rem;
+        pointer-events: none;
+
+        > * {
+            pointer-events: initial;
+        }
+    }
 }
 </style>
 

@@ -31,8 +31,5 @@ export default class ReplayToolbarVue extends Vue {
 <style lang="scss" scoped>
 .grad-replay__toolbar {
     display: flex;
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
 }
 </style>
