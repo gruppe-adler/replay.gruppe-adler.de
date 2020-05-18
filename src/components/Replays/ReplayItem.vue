@@ -119,8 +119,11 @@ export default class ReplayItemVue extends Vue {
         display: grid;
         grid-column-gap: 1.5rem;
         grid-row-gap: .5rem;
-        grid-auto-flow: column;
+        grid-template-columns: .5fr .5fr .5fr;
         justify-items: flex-start;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     &__map-field {
@@ -172,27 +175,27 @@ export default class ReplayItemVue extends Vue {
     @media(max-width: 1300px) {
         grid-template:
             "title map-img map-name btn" auto
-            "fields map-img map-name btn" auto / 40% auto 1fr 100px;
+            "fields map-img map-name btn" auto / 40% auto 1fr 6rem;
     }
 
     @media(max-width: 1200px) {
         grid-template:
             "title map-img map-name btn" auto
-            "fields map-img map-name btn" auto / 50% auto 1fr 100px;
+            "fields map-img map-name btn" auto / 50% auto 1fr 6rem;
     }
 
     @media(max-width: 800px) {
         grid-template:
             "title btn" auto
-            "fields btn" auto / 1fr 100px;
+            "fields btn" auto / 1fr 6rem;
 
         &__fields {
-            grid-template-columns: auto auto;
+            grid-template-columns: .5fr .5fr;
             grid-auto-flow: row;
         }
 
         &__map-field {
-            display: flex;
+            display: grid;
         }
 
         &__map-name,
