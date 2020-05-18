@@ -29,6 +29,8 @@ import IconButtonVue from './IconButton.vue';
 import DataWorker from '@/utils/DataWorker';
 import ReplayControlsSliderVue from './Controls/Slider.vue';
 
+const SEARCH_PARAM_NAME = 'frame';
+
 @Component({
     components: {
         IconButton: IconButtonVue,
@@ -62,7 +64,34 @@ export default class ReplayControlsVue extends Vue {
             };
         });
 
+        this.decodeFramefromSearchParams();
         this.loadFrame();
+    }
+
+    private async decodeFramefromSearchParams () {
+        const searchParams = new URLSearchParams(window.location.search);
+
+        const frameStr = searchParams.get(SEARCH_PARAM_NAME);
+        if (frameStr === null) return;
+
+        const frame = Number.parseInt(window.decodeURIComponent(frameStr), 10);
+        if (!Number.isNaN(frame) && frame < this.replay.frameCount) {
+            this.frameNumber = frame;
+        }
+
+        this.updateUrl();
+    }
+
+    @Watch('frameNumber')
+    private updateUrl () {
+        const url = new URL(window.location.href);
+        if (this.frameNumber === 0) {
+            url.searchParams.delete(SEARCH_PARAM_NAME);
+        } else {
+            url.searchParams.set(SEARCH_PARAM_NAME, window.encodeURIComponent(this.frameNumber));
+        }
+
+        window.history.replaceState({ path: url.toString() }, '', url.toString());
     }
 
     private toggleSpeedFlyout () {
