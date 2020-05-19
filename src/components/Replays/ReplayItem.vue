@@ -6,17 +6,17 @@
                 <i class="material-icons">calendar_today</i>
                 <span>{{date}}</span>
             </div>
+            <div class="grad-replay-item--icon-text">
+                <i class="material-icons">schedule</i>
+                <span>{{time}}</span>
+            </div>
             <div class="grad-replay-item--icon-text grad-replay-item__map-field">
                 <i class="material-icons">map</i>
                 <span>{{mapDisplayName}}</span>
             </div>
             <div class="grad-replay-item--icon-text">
-                <i class="material-icons">schedule</i>
+                <i class="material-icons">timelapse</i>
                 <span>{{duration}}</span>
-            </div>
-            <div class="grad-replay-item--icon-text">
-                <i class="material-icons">people</i>
-                <span>n/a</span>
             </div>
         </div>
         <img v-if="mapImg.length > 0" class="grad-replay-item__map-img" :src="mapImg" />
@@ -37,7 +37,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Replay } from '@/models/Replay';
 import { MapMetaData, mapPreviewImgUrl } from '@gruppe-adler/maps-frontend-utils';
-import { formatDate, formatSeconds } from '@/utils/dateTime';
+import { formatDate, formatSeconds, formatTime } from '@/utils/dateTime';
 
 @Component
 export default class ReplayItemVue extends Vue {
@@ -65,6 +65,10 @@ export default class ReplayItemVue extends Vue {
         return formatDate(this.model.date);
     }
 
+    private get time (): string {
+        return formatTime(this.model.date);
+    }
+
     private get valid (): boolean {
         return this.map !== null;
     }
@@ -81,24 +85,25 @@ export default class ReplayItemVue extends Vue {
 .grad-replay-item {
     background-color: white;
     display: grid;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    margin-left: 1rem;
-    margin-right: 1rem;
-    border-radius: 0.75rem;
+    font-size: 1rem;
+    padding: 0.75em 1em;
+    margin-bottom: 1em;
+    margin-left: 1em;
+    margin-right: 1em;
+    border-radius: 0.75em;
     grid-template:
             "title map-img map-name btn" auto
-            "fields map-img map-name btn" auto / 30% auto 1fr 100px;
+            "fields map-img map-name btn" auto / 30% auto 1fr 6rem;
 
-    grid-row-gap: 0.5rem;
-    grid-column-gap: 0.75rem;
+    grid-row-gap: 0.5em;
+    grid-column-gap: 0.75em;
     align-items: center;
     justify-items: flex-start;
 
     &--icon-text {
         display: grid;
         grid-template-columns: auto auto;
-        grid-column-gap: 0.5rem;
+        grid-column-gap: 0.5em;
         align-items: center;
         color: rgba(black, 50%);
         justify-content: center;
@@ -112,13 +117,14 @@ export default class ReplayItemVue extends Vue {
         grid-area: title;
         margin: 0px;
         font-weight: normal;
+        overflow: hidden;
     }
 
     &__fields {
         grid-area: fields;
         display: grid;
-        grid-column-gap: 1.5rem;
-        grid-row-gap: .5rem;
+        grid-column-gap: 1em;
+        grid-row-gap: .5em;
         grid-template-columns: .5fr .5fr .5fr;
         justify-items: flex-start;
         white-space: nowrap;
@@ -130,11 +136,17 @@ export default class ReplayItemVue extends Vue {
         display: none;
     }
 
+    &__map {
+        grid-area: map;
+        display: flex;
+        align-items: center;
+    }
+
     &__map-img {
         grid-area: map-img;
-        height: 3.5rem;
-        width: 3.5rem;
-        border-radius: .25rem;
+        height: 3.5em;
+        width: 3.5em;
+        border-radius: .25em;
     }
     &__map-name {
         grid-area: map-name;
@@ -151,7 +163,7 @@ export default class ReplayItemVue extends Vue {
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 0.75rem 0.5rem;
+        padding: 0.75em 0.5em;
         border-top-right-radius: inherit;
         border-bottom-right-radius: inherit;
         cursor: pointer;
@@ -162,7 +174,7 @@ export default class ReplayItemVue extends Vue {
         }
 
         &:hover i {
-            font-size: 30px;
+            font-size: 4em;
         }
 
         &--error {
@@ -187,7 +199,7 @@ export default class ReplayItemVue extends Vue {
     @media(max-width: 800px) {
         grid-template:
             "title btn" auto
-            "fields btn" auto / 1fr 6rem;
+            "fields btn" auto / 1fr 5rem;
 
         &__fields {
             grid-template-columns: .5fr .5fr;
@@ -202,6 +214,10 @@ export default class ReplayItemVue extends Vue {
         &__map-img {
             display: none;
         }
+    }
+
+    @media(max-width: 600px) {
+        font-size: .8rem;
     }
 
 }

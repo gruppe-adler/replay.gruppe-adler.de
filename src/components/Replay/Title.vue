@@ -12,7 +12,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { Replay } from '@/models/Replay';
 import IconButtonVue from './IconButton.vue';
-import { formatDate } from '../../utils/dateTime';
+import { formatDate, formatTime } from '../../utils/dateTime';
 
 @Component({
     components: {
@@ -23,7 +23,7 @@ export default class ReplayTitleVue extends Vue {
     @Prop({ required: true, type: Object }) private replay!: Replay;
 
     private get date (): string {
-        return `(${formatDate(this.replay.date)})`;
+        return `(${formatDate(this.replay.date)} ${formatTime(this.replay.date)})`;
     }
 }
 </script>
