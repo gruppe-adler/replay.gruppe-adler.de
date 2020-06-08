@@ -170,11 +170,11 @@ export default class ReplayItemVue extends Vue {
 
         > i {
             user-select: none;
-            transition: font-size .05s ease-in-out;
+            transition: transform .05s ease-in-out;
         }
 
         &:hover i {
-            font-size: 4em;
+            transform: scale(1.5);
         }
 
         &--error {
