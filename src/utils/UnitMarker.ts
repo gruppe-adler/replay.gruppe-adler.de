@@ -1,6 +1,6 @@
-import { Marker as LeafletMarker, DivIcon, FeatureGroup } from 'leaflet';
 import { ReplayRecord } from '@/models/Replay';
 import { armaToLatLng } from '@gruppe-adler/maps-frontend-utils';
+import { LngLat as MapboxGLLangLat, Marker as MapboxGLMarker } from 'mapbox-gl';
 
 const resolveIconUrl = (icon: string) => {
     const base = `${process.env.BASE_URL || '/'}icons/`;
@@ -31,13 +31,8 @@ const resolveIconUrl = (icon: string) => {
     return `${base}${icon}.png`;
 };
 
-export default class UnitMarker extends FeatureGroup {
+export default class UnitMarker extends MapboxGLMarker {
     constructor (record: ReplayRecord, worldSize: number) {
-        super();
-        this.setup(record, worldSize);
-    }
-
-    private async setup (record: ReplayRecord, worldSize: number) {
         const url = resolveIconUrl(record.icon);
 
         let opacity = 1;
@@ -59,15 +54,14 @@ export default class UnitMarker extends FeatureGroup {
             opacity: ${opacity};
         `;
 
-        const icon = new DivIcon({
-            className: 'grad-marker',
-            html: `
-                <div style="${style}"></div>
-                <span style="color: ${record.color}">${record.name}${record.group}</span>
-            `,
-            iconSize: [24, 24]
-        });
+        const el = document.createElement('div');
+        el.innerHTML = `<div style="${style}"></div><span style="color: ${record.color}">${record.name}${record.group}</span>`;
+        el.className = 'grad-marker';
 
-        this.addLayer(new LeafletMarker(armaToLatLng(worldSize, record.position), { icon, interactive: false }));
+        super(el, { anchor: 'top-left', offset: [-12, -12] });
+
+        const [lat, lng] = armaToLatLng(worldSize, record.position);
+
+        this.setLngLat(new MapboxGLLangLat(lng, lat));
     }
 }

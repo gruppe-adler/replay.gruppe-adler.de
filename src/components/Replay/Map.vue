@@ -16,10 +16,10 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import ErrorVue from '@/components/Error.vue';
 import LoaderVue from '@/components/Loader.vue';
-import { GradMap, armaToLatLng } from '@gruppe-adler/maps-frontend-utils';
+import { GradMap } from '@gruppe-adler/maps-frontend-utils/lib/mapbox';
 import { ReplayFrame } from '../../models/Replay';
-import { Layer as LeafletLayer, Polyline as LeafletPolyline } from 'leaflet';
 import UnitMarker from '@/utils/UnitMarker';
+import { Marker as MapboxGLMarker } from 'mapbox-gl';
 
 @Component({
     components: {
@@ -37,7 +37,7 @@ export default class ReplayMapVue extends Vue {
     private map: GradMap|null = null;
     private errorText = '';
     private errorBtn = true;
-    private layers: LeafletLayer[] = [];
+    private layers: MapboxGLMarker[] = [];
 
     private mounted () {
         this.loadMap();
@@ -46,23 +46,24 @@ export default class ReplayMapVue extends Vue {
 
     private async loadMap () {
         this.loading = true;
+        this.map = new GradMap(this.worldName, { container: this.$refs.map as HTMLDivElement, loadElevation: false, satShown: this.satShown, gridShown: this.gridShown });
 
-        try {
-            this.map = await GradMap.new(this.worldName, this.$refs.map as HTMLDivElement, { satShown: this.satShown, gridShown: this.gridShown });
-        } catch (err) {
-            if (err.response && err.response instanceof Response) {
-                if (err.response.status === 404) {
-                    this.errorText = `Couldn't find map with worldname "${this.worldName}"`;
-                    this.errorBtn = false;
-                    return;
-                }
-            }
-            console.error(err);
+        this.map.on('grad-load', () => {
+            this.loading = false;
+        });
+
+        this.map.on('error', err => {
+            if (this.errorText.length > 0) return;
+
             this.errorText = 'An error occured while loading the map.';
             this.errorBtn = false;
-        }
+            console.error(err);
+        });
 
-        this.loading = false;
+        this.map.on('error:mapnotfound', () => {
+            this.errorText = `Couldn't find map with worldname "${this.worldName}"`;
+            this.errorBtn = false;
+        });
     }
 
     @Watch('satShown')
@@ -76,7 +77,7 @@ export default class ReplayMapVue extends Vue {
     private onGridShownChanged () {
         if (this.map === null) return;
 
-        this.map.gridShown = this.satShown;
+        this.map.gridShown = this.gridShown;
     }
 
     @Watch('frame')
@@ -89,22 +90,23 @@ export default class ReplayMapVue extends Vue {
 
         this.layers.forEach(l => l.remove());
 
-        const layers: LeafletLayer[] = [];
+        const layers: MapboxGLMarker[] = [];
 
         for (const record of this.frame.data) {
             const marker = new UnitMarker(record, worldSize);
             marker.addTo(this.map);
             layers.push(marker);
 
-            if (record.target) {
-                const line = new LeafletPolyline(
-                    [armaToLatLng(worldSize, record.position), armaToLatLng(worldSize, record.target)],
-                    { color: record.color, weight: 2, opacity: 0.5 }
-                );
+            // TODO:
+            // if (record.target) {
+            //     const line = new LeafletPolyline(
+            //         [armaToLatLng(worldSize, record.position), armaToLatLng(worldSize, record.target)],
+            //         { color: record.color, weight: 2, opacity: 0.5 }
+            //     );
 
-                layers.push(line);
-                line.addTo(this.map);
-            }
+            //     layers.push(line);
+            //     line.addTo(this.map);
+            // }
         }
 
         this.layers = layers;

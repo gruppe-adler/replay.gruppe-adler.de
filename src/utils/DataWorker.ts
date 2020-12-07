@@ -58,10 +58,10 @@ export default class DataWorker extends EventTarget {
         }
 
         const abortController = new AbortController();
-        const promise = fetchJSON(
+        const promise = fetchJSON<ReplayFrame[]>(
             `${API_BASE_URL}/${this.replay.id}/data/${sectionId}`,
             { signal: abortController.signal }
-        ).then((frames: ReplayFrame[]) => {
+        ).then(frames => {
             for (let i = 0; i < frames.length; i++) {
                 const frame = frames[i];
                 this.cache.set(sectionId * 10 + i, frame);

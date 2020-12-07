@@ -23,6 +23,8 @@ export async function fetchReplays (): Promise<Replay[]> {
 export async function fetchReplay (id: number): Promise<Replay> {
     const replay = await fetchJSON(`${API_BASE_URL}/${id}`) as ReplayResponse;
 
+    if (replay.worldName === 'stratis') replay.worldName = 'Stratis';
+
     return {
         ...replay,
         date: new Date(replay.date)

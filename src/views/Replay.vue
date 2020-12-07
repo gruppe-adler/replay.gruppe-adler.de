@@ -36,7 +36,7 @@ import ErrorVue from '@/components/Error.vue';
 import LoaderVue from '@/components/Loader.vue';
 import { Replay, ReplayFrame } from '@/models/Replay';
 import { fetchReplay } from '@/ApiUtils';
-import { GradMap } from '@gruppe-adler/maps-frontend-utils';
+import { GradMap } from '@gruppe-adler/maps-frontend-utils/lib/mapbox';
 import ReplayMapVue from '@/components/Replay/Map.vue';
 import ReplayTitleVue from '@/components/Replay/Title.vue';
 import ReplayToolbarVue from '@/components/Replay/Toolbar.vue';
@@ -60,8 +60,8 @@ export default class ReplaysVue extends Vue {
     private replay: Replay|null = null;
     private frame: ReplayFrame|null = null;
     private map: GradMap|null = null;
-    private satShown = true;
-    private gridShown = false;
+    private satShown = false;
+    private gridShown = true;
 
     private created () {
         this.fetchReplay();
