@@ -24,8 +24,8 @@ export class Record extends Model<Record> {
     @Column(DataType.INTEGER)
     public id!: number;
 
-    @Column(DataType.TEXT)
-    public color!: string;
+    @Column(DataType.JSON)
+    public color!: [number, number, number, number];
 
     @Column(DataType.FLOAT)
     public direction!: number;
