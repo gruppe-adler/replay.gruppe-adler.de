@@ -17,9 +17,7 @@ import { Frame } from './Frame';
 @DefaultScope(() => ({
     attributes: { exclude: [ 'frameId' ] }
 }))
-@Table({
-    timestamps: false
-})
+@Table
 export class Record extends Model<Record> {
     @Unique
     @AutoIncrement

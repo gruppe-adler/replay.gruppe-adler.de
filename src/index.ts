@@ -21,6 +21,9 @@ if (!fs.existsSync(REPLAY_BASE_PATH)) {
 const sequelize =  new Sequelize({
     dialect: 'sqlite',
     logging: false,
+    define: {
+        timestamps: false
+    },
     storage: `${REPLAY_BASE_PATH}/replays.sqlite`
 });
 

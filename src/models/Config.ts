@@ -14,9 +14,7 @@ import { Replay } from './Replay';
 @DefaultScope(() => ({
     attributes: { exclude: [ 'replayId' ] },
 }))
-@Table({
-    timestamps: false
-})
+@Table
 export class Config extends Model<Config> {
     @Unique
     @AutoIncrement

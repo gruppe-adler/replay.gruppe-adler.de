@@ -16,9 +16,7 @@ import { Config } from './Config';
 @DefaultScope(() => ({
     include: [ Config ]
 }))
-@Table({
-    timestamps: false
-})
+@Table
 export class Replay extends Model<Replay> {
     @Unique
     @AutoIncrement

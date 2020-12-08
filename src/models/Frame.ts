@@ -19,9 +19,7 @@ import { Replay } from './Replay';
     include: [ Record ],
     attributes: { exclude: [ 'replayId' ] }
 }))
-@Table({
-    timestamps: false
-})
+@Table
 export class Frame extends Model<Frame> {
     @Unique
     @AutoIncrement
