@@ -9,7 +9,7 @@ export interface ReplayConfig {
 }
 
 export interface ReplayRecord {
-    color: string;
+    color: [number, number, number, number];
     direction: number;
     group: string;
     icon: string;

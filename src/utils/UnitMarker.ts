@@ -42,6 +42,9 @@ export default class UnitMarker extends MapboxGLMarker {
             opacity = 0.5;
         }
 
+        const [r, g, b, a] = record.color;
+        const cssColor = `rgba(${r * 255}, ${g * 255}, ${b * 255}, ${a})`;
+
         const style = `
             width: 24px;
             height: 24px;
@@ -49,13 +52,13 @@ export default class UnitMarker extends MapboxGLMarker {
             -webkit-mask-image: url(${url});
             mask-size: contain;
             -webkit-mask-size: contain;
-            background: ${record.color};
+            background: ${cssColor};
             transform: rotate(${record.direction}deg);
             opacity: ${opacity};
         `;
 
         const el = document.createElement('div');
-        el.innerHTML = `<div style="${style}"></div><span style="color: ${record.color}">${record.name}${record.group}</span>`;
+        el.innerHTML = `<div style="${style}"></div><span style="color: ${cssColor}">${record.name}${record.group}</span>`;
         el.className = 'grad-marker';
 
         super(el, { anchor: 'top-left', offset: [-12, -12] });
