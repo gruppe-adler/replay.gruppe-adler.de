@@ -9,7 +9,8 @@ import {
     ForeignKey,
     DefaultScope,
     Default,
-    AllowNull
+    AllowNull,
+    Index
 } from 'sequelize-typescript';
 import { Frame } from './Frame';
 
@@ -48,6 +49,7 @@ export class Record extends Model<Record> {
     @Column(DataType.JSON)
     public target!: [number, number]|null;
 
+    @Index
     @ForeignKey(() => Frame)
     @Column(DataType.INTEGER)
     public frameId!: number;

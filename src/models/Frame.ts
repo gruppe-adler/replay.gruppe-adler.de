@@ -8,7 +8,8 @@ import {
     Unique,
     HasMany,
     DefaultScope,
-    ForeignKey
+    ForeignKey,
+    Index
 } from 'sequelize-typescript';
 
 import { Record } from './Record';
@@ -34,6 +35,7 @@ export class Frame extends Model<Frame> {
     @HasMany(() => Record)
     data!: Record[];
 
+    @Index
     @ForeignKey(() => Replay)
     @Column(DataType.INTEGER)
     public replayId!: number;
