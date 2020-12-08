@@ -2,6 +2,8 @@ import { Router } from "express";
 import { authGuard, wrapAsync } from "./utils";
 import { Request, Response } from 'express';
 import { Replay, Frame, Record, Config } from './database'
+import rules from "./rules";
+import { matchedData } from "express-validator";
 
 const router = Router();
 
@@ -11,10 +13,8 @@ router.get('/', wrapAsync(async (req: Request, res: Response) => {
 }));
 
 // GET SINGLE REPLAY
-router.get('/:id', wrapAsync(async (req: Request, res: Response) => {
-    const id: number = Number(req.params.id);
-
-    if (isNaN(id)) return res.status(422).end();
+router.get('/:id', rules.get, wrapAsync(async (req: Request, res: Response) => {
+    const { id } = matchedData(req) as { id: number };
 
     const replay = await Replay.findByPk(id);
 
@@ -24,11 +24,8 @@ router.get('/:id', wrapAsync(async (req: Request, res: Response) => {
 }));
 
 // GET REPLAY DATA
-router.get('/:id/data/:offset', wrapAsync(async (req: Request, res: Response) => {
-    const id: number = Number(req.params.id);
-    const offset: number = Number(req.params.offset);
-
-    if (isNaN(id) || isNaN(offset)) return res.status(422).end();
+router.get('/:id/data/:offset', rules.data, wrapAsync(async (req: Request, res: Response) => {
+    const { id, offset } = matchedData(req) as { id: number, offset: number };
 
     const data = await Frame.findAll({ where: { replayId: id }, limit: 10, offset: offset*10 });
 
@@ -36,22 +33,37 @@ router.get('/:id/data/:offset', wrapAsync(async (req: Request, res: Response) =>
 }));
 
 // POST REPLAY
-router.post('/', [authGuard], wrapAsync(async (req: Request, res: Response) => {
-
-    const body = req.body as { 
+router.post('/', rules.post, wrapAsync(async (req: Request, res: Response) => {
+    const { data, ...replayData } = matchedData(req) as {
+        worldName: string,
         missionName: string,
         date: string,
-        duration: number,
-        worldName: string,
-        config: object,
-        data: Array<{ time: string, data: object }>
+        config: {
+            precision: number,
+            sendingChunkSize: number,
+            stepsPerTick: number,
+            trackShots: boolean,
+            trackedAI: boolean,
+            trackedVehicles: boolean,
+            trackedSides: string[]
+        },
+        data: Array<{
+            time: string,
+            data: Array<{
+                color: [number, number, number, number],
+                direction: number,
+                group: string,
+                icon: string,
+                name: string,
+                position: [number, number]|[number, number, number],
+            }>
+        }>
     };
-   
-    const replay: Replay = await Replay.create({ ...body, frameCount: body.data.length }, { include: [ { model: Config } ] });
 
+    const replay: Replay = await Replay.create({ ...replayData, frameCount: data.length }, { include: [ { model: Config } ] });
+    
     const records = [];
-
-    for (const item of body.data) {
+    for (const item of data) {
         const frame = await Frame.create({ ...item, replayId: replay.id });
 
         for (const rec of item.data as any[]) {
@@ -59,17 +71,14 @@ router.post('/', [authGuard], wrapAsync(async (req: Request, res: Response) => {
         }
     }
 
-    res.status(201).end();
-
     await Record.bulkCreate(records);
 
+    res.status(201).end();
 }));
 
 // DELETE replay
-router.delete('/:id', [authGuard], wrapAsync(async (req: Request, res: Response) => {
-    
-    const id: number = Number(req.params.id);
-    if (isNaN(id)) return res.status(422).end(); // unprocessable entity
+router.delete('/:id', rules.delete, wrapAsync(async (req: Request, res: Response) => {
+    const { id } = matchedData(req) as { id: number };
     
     await Replay.destroy({ where: { id }});
 

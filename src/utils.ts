@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { validationResult } from 'express-validator';
 
 const {
     AUTH_TOKEN = 'MEH'
@@ -32,3 +33,13 @@ export const authGuard = (req: Request, res: Response, next: NextFunction): void
 
     next();
 };
+
+export const return422 = (req: Request, res: Response, next: NextFunction): void => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(422).json({ errors: errors.array() });
+        return;
+    }
+
+    next();
+}
