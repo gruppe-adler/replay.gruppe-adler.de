@@ -1,9 +1,8 @@
-import { Router } from "express";
-import { authGuard, wrapAsync } from "./utils";
-import { Request, Response } from 'express';
-import { Replay, Frame, Record, Config } from './database'
-import rules from "./rules";
-import { matchedData } from "express-validator";
+import { wrapAsync } from './utils';
+import { Router, Request, Response } from 'express';
+import { Replay, Frame, Record, Config } from './database';
+import rules from './rules';
+import { matchedData } from 'express-validator';
 
 const router = Router();
 
@@ -27,7 +26,7 @@ router.get('/:id', rules.get, wrapAsync(async (req: Request, res: Response) => {
 router.get('/:id/data/:offset', rules.data, wrapAsync(async (req: Request, res: Response) => {
     const { id, offset } = matchedData(req) as { id: number, offset: number };
 
-    const data = await Frame.findAll({ where: { replayId: id }, limit: 10, offset: offset*10 });
+    const data = await Frame.findAll({ where: { replayId: id }, limit: 10, offset: offset * 10 });
 
     res.status(200).json(data);
 }));
@@ -60,13 +59,13 @@ router.post('/', rules.post, wrapAsync(async (req: Request, res: Response) => {
         }>
     };
 
-    const replay: Replay = await Replay.create({ ...replayData, frameCount: data.length }, { include: [ { model: Config } ] });
-    
+    const replay: Replay = await Replay.create({ ...replayData, frameCount: data.length }, { include: [{ model: Config }] });
+
     const records = [];
     for (const item of data) {
         const frame = await Frame.create({ ...item, replayId: replay.id });
 
-        for (const rec of item.data as any[]) {
+        for (const rec of item.data) {
             records.push({ ...rec, frameId: frame.id });
         }
     }
@@ -79,8 +78,8 @@ router.post('/', rules.post, wrapAsync(async (req: Request, res: Response) => {
 // DELETE replay
 router.delete('/:id', rules.delete, wrapAsync(async (req: Request, res: Response) => {
     const { id } = matchedData(req) as { id: number };
-    
-    await Replay.destroy({ where: { id }});
+
+    await Replay.destroy({ where: { id } });
 
     res.status(200).end();
 }));

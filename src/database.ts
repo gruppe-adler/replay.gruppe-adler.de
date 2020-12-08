@@ -12,7 +12,7 @@ if (!fs.existsSync(REPLAY_BASE_PATH)) {
     fs.mkdirSync(REPLAY_BASE_PATH);
 }
 
-const sequelize =  new Sequelize({
+const sequelize = new Sequelize({
     dialect: 'sqlite',
     logging: false,
     define: {
@@ -21,7 +21,7 @@ const sequelize =  new Sequelize({
     storage: `${REPLAY_BASE_PATH}/replays.sqlite`
 });
 
-sequelize.addModels([ Replay, Frame, Record, Config ]);
+sequelize.addModels([Replay, Frame, Record, Config]);
 sequelize.sync();
 
 export { sequelize, Replay, Frame, Record, Config };

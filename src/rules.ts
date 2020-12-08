@@ -1,5 +1,5 @@
-import { body, param } from "express-validator";
-import { authGuard, return422 } from "./utils";
+import { body, param } from 'express-validator';
+import { authGuard, return422 } from './utils';
 
 export default {
     get: [

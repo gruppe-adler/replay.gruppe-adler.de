@@ -12,7 +12,7 @@ import {
 import { Replay } from './Replay';
 
 @DefaultScope(() => ({
-    attributes: { exclude: [ 'replayId' ] },
+    attributes: { exclude: ['replayId'] }
 }))
 @Table
 export class Config extends Model<Config> {
@@ -21,7 +21,7 @@ export class Config extends Model<Config> {
     @PrimaryKey
     @Column(DataType.INTEGER)
     public id!: number;
-    
+
     @Column(DataType.INTEGER)
     public precision!: number;
 

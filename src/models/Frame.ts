@@ -16,8 +16,8 @@ import { Record } from './Record';
 import { Replay } from './Replay';
 
 @DefaultScope(() => ({
-    include: [ Record ],
-    attributes: { exclude: [ 'replayId' ] }
+    include: [Record],
+    attributes: { exclude: ['replayId'] }
 }))
 @Table
 export class Frame extends Model<Frame> {
@@ -26,10 +26,10 @@ export class Frame extends Model<Frame> {
     @PrimaryKey
     @Column(DataType.INTEGER)
     public id!: number;
-    
+
     @Column(DataType.TEXT)
     public time!: string;
-    
+
     @HasMany(() => Record)
     data!: Record[];
 

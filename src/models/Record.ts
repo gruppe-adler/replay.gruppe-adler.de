@@ -8,14 +8,13 @@ import {
     Unique,
     ForeignKey,
     DefaultScope,
-    Default,
     AllowNull,
     Index
 } from 'sequelize-typescript';
 import { Frame } from './Frame';
 
 @DefaultScope(() => ({
-    attributes: { exclude: [ 'frameId' ] }
+    attributes: { exclude: ['frameId'] }
 }))
 @Table
 export class Record extends Model<Record> {
@@ -24,7 +23,7 @@ export class Record extends Model<Record> {
     @PrimaryKey
     @Column(DataType.INTEGER)
     public id!: number;
-    
+
     @Column(DataType.TEXT)
     public color!: string;
 
@@ -39,10 +38,10 @@ export class Record extends Model<Record> {
 
     @Column(DataType.TEXT)
     public name!: string;
-    
+
     @Column(DataType.JSON)
     public position!: [number, number];
-    
+
     @AllowNull
     @Column(DataType.JSON)
     public target!: [number, number]|null;

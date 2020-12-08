@@ -9,7 +9,7 @@ import router from './router';
 const app = express();
 
 // body parser
-app.use(bodyParser.json({ limit: '1gb'}));
+app.use(bodyParser.json({ limit: '1gb' }));
 
 // logger
 app.use(morgan('[:date[clf]] :remote-addr - :remote-user | :method :url :req[content-length] | :status :response-time ms'));
@@ -18,11 +18,11 @@ app.use(morgan('[:date[clf]] :remote-addr - :remote-user | :method :url :req[con
 app.use(cors({
     credentials: false,
     origin: [
-        new RegExp('gruppe-adler\.de$', 'i'),
-        new RegExp('localhost:[0-9]+$', 'i'),
-        new RegExp('127.0.0.1:[0-9]+$', 'i'),
-        new RegExp('127.0.0.1$', 'i'),
-        new RegExp('localhost$', 'i')
+        /^https?:\/\/(.+\.)?gruppe-adler\.de$/i,
+        /^https?:\/\/localhost:[0-9]+$/i,
+        /^https?:\/\/127.0.0.1:[0-9]+$/i,
+        /^https?:\/\/127.0.0.1$/i,
+        /^https?:\/\/localhost$/i
     ]
 }));
 
@@ -30,7 +30,7 @@ app.use('/', router);
 app.use(globalErrorHandler);
 
 const {
-    PORT = '80',
+    PORT = '80'
 } = process.env;
 
 app.listen(PORT, () => {

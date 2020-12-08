@@ -14,7 +14,7 @@ import { Frame } from './Frame';
 import { Config } from './Config';
 
 @DefaultScope(() => ({
-    include: [ Config ]
+    include: [Config]
 }))
 @Table
 export class Replay extends Model<Replay> {
@@ -23,7 +23,7 @@ export class Replay extends Model<Replay> {
     @PrimaryKey
     @Column(DataType.INTEGER)
     public id!: number;
-    
+
     @Column(DataType.TEXT)
     public missionName!: string;
 
@@ -44,5 +44,4 @@ export class Replay extends Model<Replay> {
 
     @HasOne(() => Config)
     public config!: Config;
-
 }
