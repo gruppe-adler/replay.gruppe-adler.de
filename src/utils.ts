@@ -22,7 +22,7 @@ export const globalErrorHandler = (
     res.status(err.status || 500).end();
 };
 
-export const authGuard = (req: Request, res: Response, next: NextFunction)  => {
+export const authGuard = (req: Request, res: Response, next: NextFunction): void => {
     
     const auth: string = req.header('Authorization') || '';
     if (auth === '') return res.status(401).end(); // unauthorized
