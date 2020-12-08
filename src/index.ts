@@ -2,6 +2,7 @@ import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
+import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { Sequelize } from 'sequelize-typescript';
@@ -44,13 +45,17 @@ app.use(bp);
 // logger
 app.use(morgan('[:date[clf]] :remote-addr - :remote-user | :method :url :req[content-length] | :status :response-time ms'));
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Credentials', 'false');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-    res.setHeader('Access-Control-Allow-Headers', 'origin, Content-Type, Authorization');
-    next();
-});
+// cors
+app.use(cors({
+    credentials: false,
+    origin: [
+        new RegExp('gruppe-adler\.de$', 'i'),
+        new RegExp('localhost:[0-9]+$', 'i'),
+        new RegExp('127.0.0.1:[0-9]+$', 'i'),
+        new RegExp('127.0.0.1$', 'i'),
+        new RegExp('localhost$', 'i')
+    ]
+}));
 
 // GET ALL REPLAYS
 app.get('/', wrapAsync(async (req: Request, res: Response) => {
