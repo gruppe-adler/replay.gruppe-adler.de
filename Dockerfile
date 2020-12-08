@@ -15,7 +15,7 @@ RUN npm ci
 COPY . .
 
 # Compile 
-RUN [ "npm", "run", "tsc" ]
+RUN [ "npm", "run", "build" ]
 
 FROM node:10-alpine
 WORKDIR /usr/src/app/
@@ -30,4 +30,4 @@ RUN npm ci --only=production
 EXPOSE 80
 VOLUME ["/usr/src/app/replays"]
 
-ENTRYPOINT [ "npm", "run", "prod" ]
+ENTRYPOINT [ "npm", "run", "start" ]
