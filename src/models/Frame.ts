@@ -15,10 +15,10 @@ import {
 import { Record } from './Record';
 import { Replay } from './Replay';
 
-@DefaultScope({
-    include: [ () => Record ],
+@DefaultScope(() => ({
+    include: [ Record ],
     attributes: { exclude: [ 'replayId' ] }
-})
+}))
 @Table({
     timestamps: false
 })

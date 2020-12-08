@@ -11,9 +11,9 @@ import {
 } from 'sequelize-typescript';
 import { Replay } from './Replay';
 
-@DefaultScope({
+@DefaultScope(() => ({
     attributes: { exclude: [ 'replayId' ] },
-})
+}))
 @Table({
     timestamps: false
 })

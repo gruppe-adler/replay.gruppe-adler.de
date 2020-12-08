@@ -14,9 +14,9 @@ import {
 } from 'sequelize-typescript';
 import { Frame } from './Frame';
 
-@DefaultScope({
+@DefaultScope(() => ({
     attributes: { exclude: [ 'frameId' ] }
-})
+}))
 @Table({
     timestamps: false
 })

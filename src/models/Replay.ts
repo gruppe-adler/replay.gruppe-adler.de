@@ -13,9 +13,9 @@ import {
 import { Frame } from './Frame';
 import { Config } from './Config';
 
-@DefaultScope({
-    include: [ () => Config ]
-})
+@DefaultScope(() => ({
+    include: [ Config ]
+}))
 @Table({
     timestamps: false
 })
