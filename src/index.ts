@@ -26,6 +26,12 @@ app.use(cors({
     ]
 }));
 
+app.get('/robots.txt', (req, res) => {
+    res.status(200);
+    res.header('Content-Type', 'text/plain');
+    res.status(200).send('User-agent: *\nDisallow: /');
+});
+
 app.use('/', router);
 app.use(globalErrorHandler);
 
