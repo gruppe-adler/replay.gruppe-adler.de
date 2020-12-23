@@ -15,6 +15,7 @@ export default {
         authGuard,
         body('worldName').isString(),
         body('missionName').isString(),
+        body('duration').isInt({ gt: 0 }),
         body('date').custom(val => !isNaN(Date.parse(val))),
         body('config.precision').isInt({ gt: 0 }),
         body('config.sendingChunkSize').isInt({ gt: 0 }),
