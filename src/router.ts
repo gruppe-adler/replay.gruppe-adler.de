@@ -37,6 +37,7 @@ router.post('/', rules.post, wrapAsync(async (req: Request, res: Response) => {
         worldName: string,
         missionName: string,
         date: string,
+        duration: number,
         config: {
             precision: number,
             sendingChunkSize: number,
