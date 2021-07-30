@@ -1,0 +1,9 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define API_PATH(path)
+#define ENDPOINT
+#define PATH
+#define OATPP_ASSERT_HTTP(COND, STATUS, MESSAGE) if(!(COND)) { throw oatpp::web::protocol::http::HttpError(STATUS, MESSAGE); }
+#define OATPP_LOGD(TAG, __VA_ARGS__) oatpp::base::Environment::logFormatted(oatpp::base::Logger::PRIORITY_D, TAG, __VA_ARGS__);
+#define OATPP_LOGD(TAG, __VA_ARGS__)
