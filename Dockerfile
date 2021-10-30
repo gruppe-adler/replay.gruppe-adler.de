@@ -12,12 +12,12 @@ FROM alpine:3.14 as runner
 
 RUN mkdir /usr/local/service
 
-COPY --from=build /target/release/actixtest /usr/local/service/actixtest
+COPY --from=build /target/release/replay_service /usr/local/service/replay_service
 
 WORKDIR /usr/local/service
 
 COPY ./static ./static
 
-EXPOSE 8080 8080
+EXPOSE 8080
 
-ENTRYPOINT ["./actixtest"]
+ENTRYPOINT ["./replay_service"]

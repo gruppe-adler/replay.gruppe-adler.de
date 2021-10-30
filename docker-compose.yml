@@ -17,4 +17,5 @@ services:
     depends_on:
       - "mongodb"
     environment:
-      MONGO_CONN_STR: mongodb://mongodb/replays
+      MONGODB_URI: mongodb://mongodb:27017/
+      REPLAY_SERVICE_ADDRESS: 0.0.0.0:8080
