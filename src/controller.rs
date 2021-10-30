@@ -11,17 +11,20 @@ async fn bearer_check(
     req: ServiceRequest,
     credentials: BearerAuth,
 ) -> Result<ServiceRequest, Error> {
-    if credentials.token() == "MEH" {
-        Ok(req)
-    } else {
-        let peer_ip = match req.peer_addr() {
-          Some(addr) => addr.to_string(),
-          None => "n/a".to_string()
-        };
+    let app_data: Option<&web::Data<ServiceState>> = req.app_data();
+    if let Some(state) = app_data {
+        if credentials.token() == state.token {
+            return Ok(req)
+        }
+    };
 
-        warn!("Invalid Bearer Token {:?} {:?} {:?}", peer_ip, req.headers(), req.match_info());
-        Err(ErrorUnauthorized("Invalid Bearer Token"))
-    }
+    let peer_ip = match req.peer_addr() {
+        Some(addr) => addr.to_string(),
+        None => "n/a".to_string()
+    };
+
+    warn!("Invalid Bearer Token {:?} {:?} {:?}", peer_ip, req.headers(), req.match_info());
+    Err(ErrorUnauthorized("Invalid Bearer Token"))
 }
 
 #[post("/api", wrap = "HttpAuthentication::bearer(bearer_check)")]

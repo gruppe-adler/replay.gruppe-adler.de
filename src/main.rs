@@ -27,7 +27,9 @@ async fn main() -> std::io::Result<()> {
         db_coll_name: std::env::var("MONGODB_COLL_NAME").unwrap_or("replays".into()),
 
         address: address.clone(),
-        client: Client::with_uri_str(uri).await.expect("failed to connect")
+        client: Client::with_uri_str(uri).await.expect("failed to connect"),
+
+        token:  std::env::var("REPLAY_SERVICE_TOKEN").unwrap_or_default(),
     };
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));

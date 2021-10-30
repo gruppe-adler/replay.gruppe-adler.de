@@ -7,7 +7,8 @@ pub struct ServiceState {
     pub db_name: String,
     pub db_coll_name: String,
     pub address: String,
-    pub client: Client
+    pub client: Client,
+    pub token: String
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
