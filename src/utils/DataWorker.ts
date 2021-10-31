@@ -20,8 +20,8 @@ export default class DataWorker extends EventTarget {
     }
 
     public async getFrame (id: number): Promise<ReplayFrame|null> {
-        const sectionId = Math.floor(id / 10);
-
+        const sectionId = id;
+        
         if (!this.cache.has(id)) {
             this.dispatchEvent(new Event('loading'));
 
@@ -44,7 +44,7 @@ export default class DataWorker extends EventTarget {
 
     private async fetchSection (sectionId: number): Promise<void> {
         // section is out of bounds
-        if (this.replay.frameCount <= sectionId * 10) return;
+        if (this.replay.frameCount <= sectionId) return;
 
         // section was already cached
         if (this.cachedSections.includes(sectionId)) return;
@@ -59,12 +59,12 @@ export default class DataWorker extends EventTarget {
 
         const abortController = new AbortController();
         const promise = fetchJSON<ReplayFrame[]>(
-            `${API_BASE_URL}/${this.replay.id}/data/${sectionId}`,
+            `${API_BASE_URL}/${this.replay._id}/data/${sectionId}/10`,
             { signal: abortController.signal }
         ).then(frames => {
             for (let i = 0; i < frames.length; i++) {
                 const frame = frames[i];
-                this.cache.set(sectionId * 10 + i, frame);
+                this.cache.set(sectionId + i, frame);
             }
             this.cachedSections.push(sectionId);
             this.dispatchEvent(new Event('buffered'));
@@ -92,7 +92,7 @@ export default class DataWorker extends EventTarget {
 
     public getBufferedAreas (): Array<{ start: number; end: number }> {
         return this.cachedSections.map(s => {
-            return { start: s * 10, end: (s + 1) * 10 };
+            return { start: s, end: (s + 1) };
         });
     }
 }

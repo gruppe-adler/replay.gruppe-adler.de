@@ -2,7 +2,7 @@ import { ResponseError } from '@gruppe-adler/maps-frontend-utils';
 import { Replay } from '@/models/Replay';
 
 export const WMTS_BASE_URL = 'https://maps.gruppe-adler.de';
-export const API_BASE_URL = 'https://replay.gruppe-adler.de';
+export const API_BASE_URL = 'https://replay.gruppe-adler.de/api';
 
 type ReplayResponse = Omit<Replay, 'date'> & { date: string };
 
@@ -20,7 +20,7 @@ export async function fetchReplays (): Promise<Replay[]> {
     return replays.map(r => ({ ...r, date: new Date(r.date) }));
 }
 
-export async function fetchReplay (id: number): Promise<Replay> {
+export async function fetchReplay (id: string): Promise<Replay> {
     const replay = await fetchJSON(`${API_BASE_URL}/${id}`) as ReplayResponse;
 
     if (replay.worldName === 'stratis') replay.worldName = 'Stratis';

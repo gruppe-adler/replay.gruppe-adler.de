@@ -76,7 +76,7 @@ export default class ReplayItemVue extends Vue {
     private select () {
         if (!this.valid) return;
 
-        this.$router.push(`/${this.model.id}`);
+        this.$router.push(`/${this.model._id}`);
     }
 }
 </script>
