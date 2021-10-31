@@ -21,7 +21,7 @@ export default class DataWorker extends EventTarget {
 
     public async getFrame (id: number): Promise<ReplayFrame|null> {
         const sectionId = id;
-        
+
         if (!this.cache.has(id)) {
             this.dispatchEvent(new Event('loading'));
 

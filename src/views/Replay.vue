@@ -67,10 +67,6 @@ export default class ReplaysVue extends Vue {
         this.fetchReplay();
     }
 
-    private get parsedReplayId (): number {
-        return Number.parseInt(this.rid, 10);
-    }
-
     private async fetchReplay () {
         this.loading = true;
         this.errorText = '';
