@@ -2,9 +2,9 @@ use actix_web::{Error, HttpResponse, delete, dev::ServiceRequest, error::ErrorUn
 use actix_web_httpauth::{extractors::bearer::BearerAuth, middleware::HttpAuthentication};
 use futures::TryStreamExt;
 use log::warn;
-use mongodb::{Collection, bson::{doc, oid::ObjectId}, options::FindOneOptions};
+use mongodb::{Collection, bson::{doc, oid::ObjectId}, options::{FindOneOptions, FindOptions}};
 
-use crate::model::{Replay, ReplaySlim, ServiceState};
+use crate::model::{Replay, ReplayData, ReplaySlim, ServiceState};
 
 
 async fn bearer_check(
@@ -30,12 +30,10 @@ async fn bearer_check(
 #[post("/api", wrap = "HttpAuthentication::bearer(bearer_check)")]
 async fn post_insert(
     state: web::Data<ServiceState>,
-    mut replay: web::Json<Replay>
+    mut replay: web::Json<ReplayData>
 ) -> HttpResponse {
     let collection = state.client.database(&state.db_name).collection(&state.db_coll_name);
-
-    replay._id = ObjectId::new();
-    replay.id = replay._id.to_hex();
+    replay.frame_count = replay.data.len();
 
     let result = collection.insert_one(replay.into_inner(), None).await;
     match result {
@@ -49,9 +47,10 @@ async fn get_all(
     state: web::Data<ServiceState>
 ) -> HttpResponse {
     let collection: Collection<Replay> = state.client.database(&state.db_name).collection(&state.db_coll_name);
+    let find_options = FindOptions::builder().projection(doc! { "data": 0 }).build();
 
     let r = collection
-         .find(None, None)
+         .find(None, find_options)
          .await;
     match r {
         Ok(cursor) => HttpResponse::Ok().json(cursor.try_collect().await.unwrap_or_else(|_| vec![])),
@@ -65,10 +64,11 @@ async fn get_id(
     id: web::Path<String>
 ) -> HttpResponse {
     let collection: Collection<Replay> = state.client.database(&state.db_name).collection(&state.db_coll_name);
+    let find_one_options = FindOneOptions::builder().projection(doc! { "data": 0 }).build();
 
     if let Ok(oid) = ObjectId::parse_str(id.as_str()) {
         return match collection
-            .find_one(doc! { "_id": oid }, None)
+            .find_one(doc! { "_id": oid }, find_one_options)
             .await
             {
                 Ok(Some(user)) => HttpResponse::Ok().json(user),

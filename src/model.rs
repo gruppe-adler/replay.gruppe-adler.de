@@ -1,5 +1,7 @@
 use mongodb::{Client, bson::oid::ObjectId};
 use serde::{Deserialize, Serialize};
+use bson::serde_helpers::serialize_hex_string_as_object_id;
+use bson::serde_helpers::deserialize_hex_string_from_object_id;
 
 #[derive(Clone, Debug)]
 pub struct ServiceState {
@@ -11,12 +13,14 @@ pub struct ServiceState {
     pub token: String
 }
 
+fn oid() -> String {
+    ObjectId::new().to_string()
+}
+
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Replay {
-    #[serde(default, skip_serializing)]
-    pub _id: ObjectId,
-    #[serde(default)]
-    pub id: String,
+    #[serde(default = "oid", deserialize_with = "deserialize_hex_string_from_object_id")]
+    pub _id: String,
     #[serde(rename = "missionName")]
     pub mission_name: String,
     pub date: String,
@@ -24,6 +28,23 @@ pub struct Replay {
     #[serde(rename = "worldName")]
     pub world_name: String,
     pub config: Config,
+    #[serde(default, rename = "frameCount")]
+    pub frame_count: usize
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct ReplayData {
+    #[serde(default = "oid", serialize_with = "serialize_hex_string_as_object_id", deserialize_with = "deserialize_hex_string_from_object_id")]
+    pub _id: String,
+    #[serde(rename = "missionName")]
+    pub mission_name: String,
+    pub date: String,
+    pub duration: i32,
+    #[serde(rename = "worldName")]
+    pub world_name: String,
+    pub config: Config,
+    #[serde(default, rename = "frameCount")]
+    pub frame_count: usize,
     pub data: Vec<Frame>
 }
 

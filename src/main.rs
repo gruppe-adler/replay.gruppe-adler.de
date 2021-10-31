@@ -6,7 +6,7 @@ use std::thread;
 
 use actix_files::Files;
 
-use actix_web::middleware::Logger;
+use actix_web::middleware::{Logger, NormalizePath};
 use actix_web::{App, HttpServer, middleware, web};
 
 use futures::executor;
@@ -29,7 +29,7 @@ async fn main() -> std::io::Result<()> {
         address: address.clone(),
         client: Client::with_uri_str(uri).await.expect("failed to connect"),
 
-        token:  std::env::var("REPLAY_SERVICE_TOKEN").unwrap_or_default(),
+        token:  std::env::var("REPLAY_SERVICE_TOKEN").unwrap_or("MEH".to_string()),
     };
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
@@ -40,6 +40,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(middleware::Compress::default())
             .wrap(Logger::default())
+
+            .wrap(NormalizePath::trim())
+
             .app_data(web::PayloadConfig::new(1 << 25))
             .app_data(web::JsonConfig::default().limit(1024 * 1024 * 50))
             .app_data(web::Data::new(state.clone()))
