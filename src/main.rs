@@ -21,16 +21,17 @@ use crate::controller::{
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let uri = std::env::var("MONGODB_URI").unwrap_or_else(|_| "mongodb://localhost:27017".into());
-    let address = std::env::var("REPLAY_SERVICE_ADDRESS").unwrap_or("127.0.0.1:8080".into());
+    let address =
+        std::env::var("REPLAY_SERVICE_ADDRESS").unwrap_or_else(|_| "127.0.0.1:8080".into());
     let state = ServiceState {
         db_uri: uri.clone(),
-        db_name: std::env::var("MONGODB_DB_NAME").unwrap_or("replay".into()),
-        db_coll_name: std::env::var("MONGODB_COLL_NAME").unwrap_or("replays".into()),
+        db_name: std::env::var("MONGODB_DB_NAME").unwrap_or_else(|_| "replay".into()),
+        db_coll_name: std::env::var("MONGODB_COLL_NAME").unwrap_or_else(|_| "replays".into()),
 
         address: address.clone(),
         client: Client::with_uri_str(uri).await.expect("failed to connect"),
 
-        token: std::env::var("REPLAY_SERVICE_TOKEN").unwrap_or("MEH".to_string()),
+        token: std::env::var("REPLAY_SERVICE_TOKEN").unwrap_or_else(|_| "MEH".to_string()),
     };
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
