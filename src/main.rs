@@ -53,7 +53,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_id_index)
             .service(get_id_index_amount)
             .service(delete_id)
-            .service(Files::new("/", "./static").prefer_utf8(true).show_files_listing())
+            .service(Files::new("/", "./static").prefer_utf8(true).index_file("index.html"))
     })
     .bind(address)?
     .run();
