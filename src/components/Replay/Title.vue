@@ -49,6 +49,8 @@ export default class ReplayTitleVue extends Vue {
             font-weight: bold;
             color: $color-active;
             white-space: nowrap;
+            padding-left: 2.5px;
+            padding-right: 2.5px;
         }
     }
 }
