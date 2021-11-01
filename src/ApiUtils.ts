@@ -2,7 +2,7 @@ import { ResponseError } from '@gruppe-adler/maps-frontend-utils';
 import { Replay } from '@/models/Replay';
 
 export const WMTS_BASE_URL = 'https://maps.gruppe-adler.de';
-export const API_BASE_URL = 'https://replay.gruppe-adler.de/api';
+export const API_BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'https://replay.gruppe-adler.de/api';
 
 type ReplayResponse = Omit<Replay, 'date'> & { date: string };
 
