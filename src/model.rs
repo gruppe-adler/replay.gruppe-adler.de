@@ -5,10 +5,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug)]
 pub struct ServiceState {
-    pub db_uri: String,
-    pub db_name: String,
-    pub db_coll_name: String,
-    pub address: String,
+    pub mongo_db: String,
+    pub mongo_coll: String,
+    pub service_address: String,
     pub client: Client,
     pub token: String,
 }

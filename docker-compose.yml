@@ -5,11 +5,11 @@ services:
     image: mongo
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME:
-      MONGO_INITDB_ROOT_PASSWORD:
-    ports:
-      - "27017:27017"
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: replayservice
     volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
       - ./data/db:/data/db
 
   replay-service:
@@ -19,6 +19,11 @@ services:
     depends_on:
       - "mongodb"
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/
+      REPLAY_MONGODB_HOST: mongodb
+      REPLAY_MONGODB_PORT: 27017
+      REPLAY_MONGODB_USER: replayservice
+      REPLAY_MONGODB_PW: replayservice
+      REPLAY_MONGODB_DB: replayservice
+      REPLAY_MONGODB_COLL: replays
       REPLAY_SERVICE_ADDRESS: 0.0.0.0:8080
-      REPLAY_SERVICE_TOKEN: SUPER_SECRET_TOKEN
+      REPLAY_SERVICE_TOKEN: MEH

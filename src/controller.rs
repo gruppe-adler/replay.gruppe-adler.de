@@ -1,8 +1,9 @@
+use actix_files::NamedFile;
 use actix_web::{
     delete, dev::ServiceRequest, error::ErrorUnauthorized, get, post, web, Error, HttpResponse,
 };
 use actix_web_httpauth::{extractors::bearer::BearerAuth, middleware::HttpAuthentication};
-use futures::TryStreamExt;
+use futures::{io, TryStreamExt};
 use log::warn;
 use mongodb::{
     bson::{doc, oid::ObjectId},
@@ -44,8 +45,8 @@ async fn post_insert(
 ) -> HttpResponse {
     let collection = state
         .client
-        .database(&state.db_name)
-        .collection(&state.db_coll_name);
+        .database(&state.mongo_db)
+        .collection(&state.mongo_coll);
     replay.frame_count = replay.data.len();
 
     let result = collection.insert_one(replay.into_inner(), None).await;
@@ -59,8 +60,8 @@ async fn post_insert(
 async fn get_all(state: web::Data<ServiceState>) -> HttpResponse {
     let collection: Collection<Replay> = state
         .client
-        .database(&state.db_name)
-        .collection(&state.db_coll_name);
+        .database(&state.mongo_db)
+        .collection(&state.mongo_coll);
     let find_options = FindOptions::builder()
         .projection(doc! { "data": 0 })
         .build();
@@ -78,8 +79,8 @@ async fn get_all(state: web::Data<ServiceState>) -> HttpResponse {
 async fn get_id(state: web::Data<ServiceState>, id: web::Path<String>) -> HttpResponse {
     let collection: Collection<Replay> = state
         .client
-        .database(&state.db_name)
-        .collection(&state.db_coll_name);
+        .database(&state.mongo_db)
+        .collection(&state.mongo_coll);
     let find_one_options = FindOneOptions::builder()
         .projection(doc! { "data": 0 })
         .build();
@@ -102,8 +103,8 @@ async fn get_id(state: web::Data<ServiceState>, id: web::Path<String>) -> HttpRe
 async fn delete_id(state: web::Data<ServiceState>, id: web::Path<String>) -> HttpResponse {
     let collection: Collection<Replay> = state
         .client
-        .database(&state.db_name)
-        .collection(&state.db_coll_name);
+        .database(&state.mongo_db)
+        .collection(&state.mongo_coll);
 
     if let Ok(oid) = ObjectId::parse_str(id.as_str()) {
         return match collection.delete_one(doc! { "_id": oid }, None).await {
@@ -137,8 +138,8 @@ async fn get_sliced(
 ) -> HttpResponse {
     let collection: Collection<ReplaySlim> = state
         .client
-        .database(&state.db_name)
-        .collection(&state.db_coll_name);
+        .database(&state.mongo_db)
+        .collection(&state.mongo_coll);
     let find_one_options = FindOneOptions::builder()
         .projection(doc! { "_id": 1, "data": { "$slice" : [index, amount.unwrap_or(1)] } })
         .build();
@@ -155,4 +156,8 @@ async fn get_sliced(
     } else {
         return HttpResponse::NotFound().body(format!("No replay found with ID: {}", id));
     }
+}
+
+pub async fn index() -> io::Result<NamedFile> {
+    Ok(NamedFile::open("./static/index.html")?)
 }
