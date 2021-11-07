@@ -1,29 +1,21 @@
 version: '3'
 
 services:
-  mongodb:
-    image: mongo
-    restart: always
+  db:
+    image: postgres
+    restart: unless-stopped
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: replayservice
+      POSTGRES_PASSWORD: secret
     volumes:
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-      - ./data/db:/data/db
+      - ./data:/var/lib/postgresql/data
 
   replay-service:
     build: .
     ports:
-      - "8080:8080"
+      - "80:8080"
     depends_on:
-      - "mongodb"
+      - "db"
     environment:
-      REPLAY_MONGODB_HOST: mongodb
-      REPLAY_MONGODB_PORT: 27017
-      REPLAY_MONGODB_USER: replayservice
-      REPLAY_MONGODB_PW: replayservice
-      REPLAY_MONGODB_DB: replayservice
-      REPLAY_MONGODB_COLL: replays
+      REPLAY_DB_URL: postgres://postgres:secret@db:5432/
       REPLAY_SERVICE_ADDRESS: 0.0.0.0:8080
       REPLAY_SERVICE_TOKEN: MEH

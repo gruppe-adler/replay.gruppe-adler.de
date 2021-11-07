@@ -29,7 +29,7 @@ export interface ReplayData {
 }
 
 export interface Replay {
-    _id: string;
+    id: string;
     missionName: string;
     date: Date;
     duration: number;

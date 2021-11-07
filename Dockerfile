@@ -1,11 +1,13 @@
 # Build backend
 FROM rust:alpine3.14 as build-backend
+ENV RUSTFLAGS="-C target-feature=-crt-static"
 
 RUN apk update && apk add --no-cache \
-    musl-dev
+    musl-dev postgresql-dev
 
 COPY ./src ./src
 COPY ./Cargo.toml ./Cargo.toml
+COPY ./migrations ./migrations
 
 RUN cargo build --release
 
@@ -26,9 +28,13 @@ RUN npm run build
 
 FROM alpine:3.14 as runner
 
+RUN apk update && apk add --no-cache \
+    postgresql
+
 RUN mkdir /usr/local/service
 
 COPY --from=build-backend /target/release/replay_service /usr/local/service/replay_service
+COPY --from=build-backend ./migrations /usr/local/service/migrations
 
 WORKDIR /usr/local/service
 

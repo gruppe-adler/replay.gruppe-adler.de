@@ -16,7 +16,7 @@
         <div class="grad-replays__replays-wrapper" v-if="filteredReplays.length > 0">
             <ReplayItem
                 v-for="r in filteredReplays"
-                :key="r._id"
+                :key="r.id"
                 :model="r"
                 :maps="maps"
             />

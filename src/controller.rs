@@ -3,15 +3,12 @@ use actix_web::{
     delete, dev::ServiceRequest, error::ErrorUnauthorized, get, post, web, Error, HttpResponse,
 };
 use actix_web_httpauth::{extractors::bearer::BearerAuth, middleware::HttpAuthentication};
-use futures::{io, TryStreamExt};
-use log::warn;
-use mongodb::{
-    bson::{doc, oid::ObjectId},
-    options::{FindOneOptions, FindOptions},
-    Collection,
-};
 
-use crate::model::{Replay, ReplayData, ReplaySlim, ServiceState};
+use futures::io;
+use log::warn;
+
+use crate::actions;
+use crate::model::{ReplayData, ServiceState};
 
 async fn bearer_check(
     req: ServiceRequest,
@@ -26,7 +23,7 @@ async fn bearer_check(
 
     let peer_ip = match req.peer_addr() {
         Some(addr) => addr.to_string(),
-        None => "n/a".to_string(),
+        None => String::from("n/a"),
     };
 
     warn!(
@@ -41,120 +38,126 @@ async fn bearer_check(
 #[post("/api", wrap = "HttpAuthentication::bearer(bearer_check)")]
 async fn post_insert(
     state: web::Data<ServiceState>,
-    mut replay: web::Json<ReplayData>,
+    replay: web::Json<ReplayData>,
 ) -> HttpResponse {
-    let collection = state
-        .client
-        .database(&state.mongo_db)
-        .collection(&state.mongo_coll);
-    replay.frame_count = replay.data.len();
+    let insert_result = web::block(move || {
+        let conn = state.pool.get()?;
+        actions::insert_replay(replay, &conn)
+    })
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    });
 
-    let result = collection.insert_one(replay.into_inner(), None).await;
-    match result {
-        Ok(_) => HttpResponse::Created().body(""),
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    match insert_result {
+        Ok(result) => match result {
+            Ok(_) => HttpResponse::Created().body("Replay created."),
+            Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+        },
+        Err(e) => e,
     }
 }
 
 #[get("/api")]
 async fn get_all(state: web::Data<ServiceState>) -> HttpResponse {
-    let collection: Collection<Replay> = state
-        .client
-        .database(&state.mongo_db)
-        .collection(&state.mongo_coll);
-    let find_options = FindOptions::builder()
-        .projection(doc! { "data": 0 })
-        .build();
+    let replays_res = web::block(move || {
+        let conn = state.pool.get()?;
+        actions::get_all(&conn)
+    })
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().body(e.to_string())
+    });
 
-    let r = collection.find(None, find_options).await;
-    match r {
-        Ok(cursor) => {
-            HttpResponse::Ok().json(cursor.try_collect().await.unwrap_or_else(|_| vec![]))
-        }
-        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    match replays_res {
+        Ok(replays_vec) => match replays_vec {
+            Ok(replays) => HttpResponse::Ok().json(replays),
+            Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+        },
+        Err(e) => e,
     }
 }
 
 #[get("/api/{id}")]
-async fn get_id(state: web::Data<ServiceState>, id: web::Path<String>) -> HttpResponse {
-    let collection: Collection<Replay> = state
-        .client
-        .database(&state.mongo_db)
-        .collection(&state.mongo_coll);
-    let find_one_options = FindOneOptions::builder()
-        .projection(doc! { "data": 0 })
-        .build();
+async fn get_id(state: web::Data<ServiceState>, id: web::Path<i32>) -> HttpResponse {
+    let replay_result = web::block(move || {
+        let conn = state.pool.get()?;
+        actions::get_by_id(id.into_inner(), &conn)
+    })
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().body(e.to_string())
+    });
 
-    if let Ok(oid) = ObjectId::parse_str(id.as_str()) {
-        return match collection
-            .find_one(doc! { "_id": oid }, find_one_options)
-            .await
-        {
-            Ok(Some(user)) => HttpResponse::Ok().json(user),
-            Ok(None) => HttpResponse::NotFound().body(format!("No replay found with ID: {}", id)),
-            Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-        };
-    } else {
-        return HttpResponse::NotFound().body(format!("No replay found with ID: {}", id));
+    match replay_result {
+        Ok(replay_res) => match replay_res {
+            Ok(replay) => HttpResponse::Ok().json(replay),
+            Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+        },
+        Err(e) => e,
     }
 }
 
 #[delete("/api/{id}", wrap = "HttpAuthentication::bearer(bearer_check)")]
-async fn delete_id(state: web::Data<ServiceState>, id: web::Path<String>) -> HttpResponse {
-    let collection: Collection<Replay> = state
-        .client
-        .database(&state.mongo_db)
-        .collection(&state.mongo_coll);
+async fn delete_id(state: web::Data<ServiceState>, id: web::Path<i32>) -> HttpResponse {
+    let delete_result = web::block(move || {
+        let conn = state.pool.get()?;
+        actions::delete_by_id(id.into_inner(), &conn)
+    })
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().finish()
+    });
 
-    if let Ok(oid) = ObjectId::parse_str(id.as_str()) {
-        return match collection.delete_one(doc! { "_id": oid }, None).await {
-            Ok(_) => HttpResponse::Ok().body(""),
-            Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-        };
-    } else {
-        return HttpResponse::NotFound().body(format!("No replay found with ID: {}", id));
+    match delete_result {
+        Ok(result) => match result {
+            Ok(_) => HttpResponse::Ok().body("Replay deleted."),
+            Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+        },
+        Err(e) => e,
     }
 }
 
 #[get("/api/{id}/data/{index}")]
 async fn get_id_index(
-    params: web::Path<(String, u32)>,
+    params: web::Path<(i32, i64)>,
     state: web::Data<ServiceState>,
 ) -> HttpResponse {
-    get_sliced((params.0.as_str(), params.1, None), state).await
+    get_sliced((params.0, params.1, None), state).await
 }
 
 #[get("/api/{id}/data/{index}/{amount}")]
 async fn get_id_index_amount(
-    params: web::Path<(String, u32, u32)>,
+    params: web::Path<(i32, i64, i64)>,
     state: web::Data<ServiceState>,
 ) -> HttpResponse {
-    get_sliced((params.0.as_str(), params.1, Some(params.2)), state).await
+    get_sliced((params.0, params.1, Some(params.2)), state).await
 }
 
 async fn get_sliced(
-    (id, index, amount): (&str, u32, Option<u32>),
+    (id, index, amount): (i32, i64, Option<i64>),
     state: web::Data<ServiceState>,
 ) -> HttpResponse {
-    let collection: Collection<ReplaySlim> = state
-        .client
-        .database(&state.mongo_db)
-        .collection(&state.mongo_coll);
-    let find_one_options = FindOneOptions::builder()
-        .projection(doc! { "_id": 1, "data": { "$slice" : [index, amount.unwrap_or(1)] } })
-        .build();
+    let frame_result = web::block(move || {
+        let conn = state.pool.get()?;
+        actions::get_data_by_id(id, index, amount.unwrap_or(1), &conn)
+    })
+    .await
+    .map_err(|e| {
+        eprintln!("{}", e);
+        HttpResponse::InternalServerError().body(e.to_string())
+    });
 
-    if let Ok(oid) = ObjectId::parse_str(id) {
-        return match collection
-            .find_one(doc! { "_id": oid }, find_one_options)
-            .await
-        {
-            Ok(Some(replay)) => HttpResponse::Ok().json(replay.data),
-            Ok(None) => HttpResponse::NotFound().body(format!("No replay found with ID: {}", id)),
-            Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
-        };
-    } else {
-        return HttpResponse::NotFound().body(format!("No replay found with ID: {}", id));
+    match frame_result {
+        Ok(frame_res) => match frame_res {
+            Ok(replay) => HttpResponse::Ok().json(replay),
+            Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
+        },
+        Err(e) => e,
     }
 }
 

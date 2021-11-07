@@ -59,7 +59,7 @@ export default class DataWorker extends EventTarget {
 
         const abortController = new AbortController();
         const promise = fetchJSON<ReplayFrame[]>(
-            `${API_BASE_URL}/${this.replay._id}/data/${sectionId}/10`,
+            `${API_BASE_URL}/${this.replay.id}/data/${sectionId}/10`,
             { signal: abortController.signal }
         ).then(frames => {
             for (let i = 0; i < frames.length; i++) {

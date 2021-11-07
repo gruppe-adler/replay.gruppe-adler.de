@@ -1,5 +1,17 @@
+mod actions;
 mod controller;
 mod model;
+mod schema;
+
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
+extern crate dotenv;
+
+use diesel::pg::PgConnection;
+use diesel_migrations::run_pending_migrations;
+use dotenv::dotenv;
 
 use std::sync::mpsc;
 use std::thread;
@@ -9,59 +21,39 @@ use actix_files::Files;
 use actix_web::middleware::{Logger, NormalizePath};
 use actix_web::{middleware, web, App, HttpServer};
 
+use diesel::r2d2::ConnectionManager;
+use diesel::r2d2::Pool;
 use futures::executor;
 
 use model::ServiceState;
-use mongodb::options::{ClientOptions, Credential, ServerAddress};
-use mongodb::Client;
 
 use crate::controller::{
     delete_id, get_all, get_id, get_id_index, get_id_index_amount, index, post_insert,
 };
 
+embed_migrations!();
+
 fn init_state() -> ServiceState {
-    let monogo_host = std::env::var("REPLAY_MONGODB_HOST").unwrap_or_else(|_| "localhost".into());
+    dotenv().ok();
 
-    let mongo_port: u16 = std::env::var("REPLAY_MONGODB_PORT")
-        .unwrap_or_else(|_| "27017".to_string())
-        .parse()
-        .unwrap_or(27017);
+    // set up database connection pool
+    let connspec = std::env::var("REPLAY_DB_URL").expect("Invalid Database Url");
+    let manager = ConnectionManager::<PgConnection>::new(connspec);
+    let pool = Pool::new(manager).expect("Creating connection pool failed");
 
-    let mongo_user =
-        std::env::var("REPLAY_MONGODB_USER").unwrap_or_else(|_| "replayservice".into());
-
-    let mongo_pw = std::env::var("REPLAY_MONGODB_PW").unwrap_or_else(|_| "replayservice".into());
-
-    let mongo_db = std::env::var("REPLAY_MONGODB_DB").unwrap_or_else(|_| "replayservice".into());
-
-    let mongo_coll = std::env::var("REPLAY_MONGODB_COLL").unwrap_or_else(|_| "replays".into());
-
-    let mongo_options = ClientOptions::builder()
-        .credential(
-            Credential::builder()
-                .username(mongo_user)
-                .password(mongo_pw)
-                .source(mongo_db.clone())
-                .build(),
-        )
-        .direct_connection(true)
-        .hosts([ServerAddress::Tcp {
-            host: monogo_host,
-            port: Some(mongo_port),
-        }])
-        .build();
+    if let Ok(conn) = pool.get() {
+        if let Err(e) = run_pending_migrations(&conn) {
+            panic!("Running migrations failed: {}", e.to_string());
+        }
+    }
 
     let service_address =
-        std::env::var("REPLAY_SERVICE_ADDRESS").unwrap_or_else(|_| "127.0.0.1:8080".into());
+        std::env::var("REPLAY_SERVICE_ADDRESS").unwrap_or_else(|_| String::from("127.0.0.1:8080"));
 
     ServiceState {
-        mongo_db,
-        mongo_coll,
-
         service_address,
-        client: Client::with_options(mongo_options).expect("failed to connect"),
-
-        token: std::env::var("REPLAY_SERVICE_TOKEN").unwrap_or_else(|_| "MEH".to_string()),
+        pool,
+        token: std::env::var("REPLAY_SERVICE_TOKEN").unwrap_or_else(|_| String::from("MEH")),
     }
 }
 
