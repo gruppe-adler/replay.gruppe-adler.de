@@ -66,7 +66,7 @@ async fn main() -> std::io::Result<()> {
     let state = init_state();
     let service_address = state.service_address.clone();
 
-    let server = HttpServer::new(move || {
+    let mut server = HttpServer::new(move || {
         App::new()
             .wrap(middleware::Compress::default())
             .wrap(Logger::default())
@@ -90,12 +90,13 @@ async fn main() -> std::io::Result<()> {
     .bind(service_address)?
     .run();
 
-    let srv = server.clone();
-    thread::spawn(move || {
-        rx.recv().unwrap_or_default();
+    //server.stop();
+    //let srv = server.clone();
+    // thread::spawn(move || {
+    //     rx.recv().unwrap_or_default();
 
-        executor::block_on(srv.stop(true))
-    });
+    //     executor::block_on(server.clone())
+    // });
 
     server.await
 }
