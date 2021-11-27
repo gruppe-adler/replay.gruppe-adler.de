@@ -40,6 +40,6 @@ WORKDIR /usr/local/service
 
 COPY --from=build-frontend /usr/src/app/dist /usr/local/service/static
 
-EXPOSE 8080
+EXPOSE 80
 
 ENTRYPOINT ["./replay_service"]

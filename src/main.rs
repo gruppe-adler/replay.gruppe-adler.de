@@ -48,7 +48,7 @@ fn init_state() -> ServiceState {
     }
 
     let service_address =
-        std::env::var("REPLAY_SERVICE_ADDRESS").unwrap_or_else(|_| String::from("127.0.0.1:8080"));
+        std::env::var("REPLAY_SERVICE_ADDRESS").unwrap_or_else(|_| String::from("127.0.0.1:80"));
 
     ServiceState {
         service_address,
