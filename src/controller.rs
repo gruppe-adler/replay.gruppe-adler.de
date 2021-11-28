@@ -1,4 +1,5 @@
 use actix_files::NamedFile;
+use actix_web::http::header::{CacheControl, CacheDirective};
 use actix_web::{
     delete, dev::ServiceRequest, error::ErrorUnauthorized, get, post, web, Error, HttpResponse,
 };
@@ -154,7 +155,9 @@ async fn get_sliced(
 
     match frame_result {
         Ok(frame_res) => match frame_res {
-            Ok(replay) => HttpResponse::Ok().json(replay),
+            Ok(replay) => HttpResponse::Ok()
+                .insert_header(CacheControl(vec![CacheDirective::MaxAge(604800)])) // 1 week
+                .json(replay),
             Err(e) => HttpResponse::InternalServerError().body(e.to_string()),
         },
         Err(e) => e,
