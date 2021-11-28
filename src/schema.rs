@@ -41,8 +41,4 @@ table! {
 joinable!(frame -> replay (id_replay));
 joinable!(record -> frame (id_frame));
 
-allow_tables_to_appear_in_same_query!(
-    frame,
-    record,
-    replay,
-);
+allow_tables_to_appear_in_same_query!(frame, record, replay,);
