@@ -13,9 +13,6 @@ use diesel::pg::PgConnection;
 use diesel_migrations::run_pending_migrations;
 use dotenv::dotenv;
 
-use std::sync::mpsc;
-use std::thread;
-
 use actix_files::Files;
 
 use actix_web::middleware::{Logger, NormalizePath};
@@ -23,7 +20,6 @@ use actix_web::{middleware, web, App, HttpServer};
 
 use diesel::r2d2::ConnectionManager;
 use diesel::r2d2::Pool;
-use futures::executor;
 
 use model::ServiceState;
 
@@ -61,12 +57,10 @@ fn init_state() -> ServiceState {
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    let (_tx, rx) = mpsc::channel::<()>();
-
     let state = init_state();
     let service_address = state.service_address.clone();
 
-    let mut server = HttpServer::new(move || {
+    HttpServer::new(move || {
         App::new()
             .wrap(middleware::Compress::default())
             .wrap(Logger::default())
@@ -88,15 +82,6 @@ async fn main() -> std::io::Result<()> {
             )
     })
     .bind(service_address)?
-    .run();
-
-    //server.stop();
-    //let srv = server.clone();
-    // thread::spawn(move || {
-    //     rx.recv().unwrap_or_default();
-
-    //     executor::block_on(server.clone())
-    // });
-
-    server.await
+    .run()
+    .await
 }
