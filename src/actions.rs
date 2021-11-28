@@ -94,6 +94,7 @@ pub fn insert_replay(json: web::Json<ReplayData>, conn: &PgConnection) -> Result
     let replay_db = model::ReplayDb {
         mission_name: json.mission_name.clone(),
         mission_date: NaiveDateTime::parse_from_str(&json.date, "%Y-%m-%d %H:%M:%S")
+            .or_else(|_| NaiveDateTime::parse_from_str(&json.date, "%Y-%m-%dT%H:%M:%SZ")) // Old format
             .unwrap_or_else(|_| NaiveDateTime::from_timestamp(0, 0)),
         duration: json.duration,
         world_name: json.world_name.clone(),
