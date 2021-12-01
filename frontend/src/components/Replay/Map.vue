@@ -50,6 +50,8 @@ export default class ReplayMapVue extends Vue {
 
         this.map.on('grad-load', () => {
             this.loading = false;
+            // eslint-disable-next-line no-unused-expressions
+            this.map?.removeLayer('water');
         });
 
         this.map.on('error', err => {
