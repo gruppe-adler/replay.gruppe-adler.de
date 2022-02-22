@@ -9,7 +9,7 @@ jobs:
     - name: Checkout from GitHub
       uses: actions/checkout@v2
     - name: Build and publish to registry
-      uses: elgohr/Publish-Docker-Github-Action@2.8
+      uses: elgohr/Publish-Docker-Github-Action@3.04
       with:
         name: gruppeadler/replay
         username: ${{ secrets.DOCKERHUB_USERNAME }}
