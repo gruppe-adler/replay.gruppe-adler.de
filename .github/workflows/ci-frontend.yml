@@ -2,13 +2,16 @@ on: [push, pull_request]
 
 name: ci frontend
 
+defaults:
+  run:
+    working-directory: frontend
+
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: cd frontend
       - run: npm ci
       - run: npm run lint
   
@@ -17,6 +20,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: cd frontend
       - run: npm ci
       - run: npm run build
