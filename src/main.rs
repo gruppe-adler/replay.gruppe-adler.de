@@ -39,7 +39,7 @@ fn init_state() -> ServiceState {
 
     if let Ok(conn) = pool.get() {
         if let Err(e) = run_pending_migrations(&conn) {
-            panic!("Running migrations failed: {}", e.to_string());
+            panic!("Running migrations failed: {}", e);
         }
     }
 
