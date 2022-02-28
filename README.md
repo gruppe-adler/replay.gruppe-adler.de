@@ -1,6 +1,6 @@
 # replay.gruppe-adler.de
 
-This is the replay API of Gruppe Adler. It holds and therefore also serves all replay data (actual data where which unit was etc.). It is used by [aar.gruppe-adler.de](https://github.com/gruppe-adler/aar.gruppe-adler.de) and [grad_replay_intercept](https://github.com/gruppe-adler/grad_replay_intercept).
+This is the online replay service of Gruppe Adler. It holds and therefore also serves all replay data (actual data where which unit was etc.). It is used by [grad_replay_intercept](https://github.com/gruppe-adler/grad_replay_intercept).
 
 ## Setup & Configuration
 A docker image is available on [Docker Hub](https://hub.docker.com/r/gruppeadler/replay).  
@@ -8,13 +8,13 @@ A docker image is available on [Docker Hub](https://hub.docker.com/r/gruppeadler
 - The authorization token can be configured via the environment variable `AUTH_TOKEN`. The default value is `MEH`.
 
 ## Development
-To setup a development enviornment just clone this repository, install all dependencies with `npm install` and then start the development server with `npm run serve`.
+To setup a development enviornment for the frontend just clone this repository, change into the `frontend` directory, install all dependencies with `npm install` and then start the development server with `npm run serve`.
 
 ## Authorization
 Some endpoints require Authorization. Just set the `Authorization` HTTP header with value `Bearer <AUTH_TOKEN>`. For an explanation on how to configure the AUTH_TOKEN see [Setup & Configuration](#Setup-&-Configuration).
 
 ## Endpoints
-### GET `/`
+### GET `api/`
 `Description`: Returns array containing meta data of all replays.  
 `Requires Authorization?`: No  
 `Example Response`: 
@@ -42,7 +42,7 @@ Some endpoints require Authorization. Just set the `Authorization` HTTP header w
 ]
 ```
 
-### GET `/:id`
+### GET `api/:id`
 `Description`: Returns replay with given id.  
 `Requires Authorization?`: No  
 `Example Response`: 
@@ -66,7 +66,7 @@ Some endpoints require Authorization. Just set the `Authorization` HTTP header w
 }
 ```
 
-### GET `/:id/data/:offset/:amount`
+### GET `api/:id/data/:offset/:amount`
 `Description`: Returns data from replay with given id with given offset and given amount. So `/0/data/20/10` will return frames 20-29 from replay 0.
 `Requires Authorization?`: No  
 `Example Response`: 
@@ -116,12 +116,12 @@ Some endpoints require Authorization. Just set the `Authorization` HTTP header w
 ]
 ```
 
-### DELETE `/:id`
+### DELETE `api/:id`
 `Description`: Deletes replay with given id.  
 `Requires Authorization?`: Yes  
 
 
-### POST `/`
+### POST `api/`
 `Description`: Creates new replay.  
 `Requires Authorization?`: Yes  
 `Example Request Body`: 
