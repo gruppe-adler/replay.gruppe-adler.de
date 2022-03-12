@@ -1,33 +1,45 @@
-FROM node:10-alpine AS builder
+# Build backend
+FROM rust:alpine3.14 as build-backend
+ENV RUSTFLAGS="-C target-feature=-crt-static"
 
-# Create app directory
-WORKDIR /tmp/
+RUN apk update && apk add --no-cache \
+    musl-dev postgresql-dev
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+COPY ./src ./src
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./migrations ./migrations
 
-# Install node_modules
+RUN cargo build --release
+
+# Build frontend
+FROM node:12.7-alpine AS build-frontend
+
+WORKDIR /usr/src/app
+
+COPY /frontend/package*.json ./
+
 RUN npm ci
 
-# Bundle app source
-COPY . .
+COPY /frontend .
 
-# Compile 
-RUN [ "npm", "run", "build" ]
+ENV NODE_ENV production
 
-FROM node:10-alpine
-WORKDIR /usr/src/app/
+RUN npm run build
 
-# Copy everyting from builder
-COPY --from=builder /tmp/build ./build/
-COPY --from=builder /tmp/package*.json ./
+FROM alpine:3.14 as runner
 
-# Install depencies
-RUN npm ci --only=production
+RUN apk update && apk add --no-cache \
+    postgresql
+
+RUN mkdir /usr/local/service
+
+COPY --from=build-backend /target/release/replay_service /usr/local/service/replay_service
+COPY --from=build-backend ./migrations /usr/local/service/migrations
+
+WORKDIR /usr/local/service
+
+COPY --from=build-frontend /usr/src/app/dist /usr/local/service/static
 
 EXPOSE 80
-VOLUME ["/usr/src/app/replays"]
 
-ENTRYPOINT [ "npm", "run", "start" ]
+ENTRYPOINT ["./replay_service"]
